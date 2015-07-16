@@ -1,0 +1,1 @@
+docker run -d -v `pwd`/etc/nginx.conf:/usr/local/nginx/conf/nginx.conf -p 80:80 knginx 

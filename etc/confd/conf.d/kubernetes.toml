@@ -1,0 +1,9 @@
+[template]
+src = "kubernetes.conf.tmpl"
+dest = "/etc/nginx/nginx.conf"
+keys = [
+    "/registry/services/specs/default/"
+]
+
+check_cmd = "nginx -t -c {{.src}}"
+reload_cmd = "nginx -s reload"
