@@ -80,6 +80,8 @@ http {
     proxy_read_timeout      90;
     proxy_buffers           32 4k;
 
+    ssi on;
+
     server {
         listen       80;
         server_name  localhost;
