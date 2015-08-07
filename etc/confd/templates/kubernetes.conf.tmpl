@@ -91,15 +91,20 @@ http {
 {{range $serviceJson := getvs "/registry/services/specs/default/*"}}
   {{$service := json $serviceJson}}
   {{if $service.metadata.annotations.nginx}}
+    #{{$service.metadata.annotations.nginx}}
     {{$nginx := json $service.metadata.annotations.nginx}}
     {{$ports := index $service.spec.ports 0}}
-location {{$nginx.location}} {
-  proxy_pass http://{{$service.spec.clusterIP}}:{{$ports.port}};
+    {{range $nginx.locations}}
 
-  proxy_cache my-cache;
-}
+      location {{.location}} {
+        proxy_pass http://{{$service.spec.clusterIP}}:{{$ports.port}};
+        proxy_cache my-cache;
+      }
+
+    {{end}}
   {{end}}
 {{end}}
+
         location / {
             root   html;
             index  index.html index.htm;
