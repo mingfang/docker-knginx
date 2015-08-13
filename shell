@@ -1,1 +1,1 @@
-docker run -e "ETCD_HOST=54.88.89.141" -v `pwd`/etc/confd:/etc/confd -v `pwd`:/docker -w /docker -p 80:80 --rm -i -t knginx /bin/bash
+docker run -e "ETCD_HOST=minux" -v `pwd`/etc/confd:/etc/confd -v `pwd`:/docker -w /docker -p 81:80 --rm -i -t knginx /bin/bash

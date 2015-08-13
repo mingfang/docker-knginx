@@ -1,1 +1,1 @@
-confd --onetime --log-level debug --confdir /etc/confd --backend etcd --node $ETCD_HOST:4001 --watch
+confd --onetime --log-level debug --confdir /etc/confd --backend etcd --node 192.168.1.160:4001 --watch

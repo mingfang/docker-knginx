@@ -82,44 +82,54 @@ http {
 
     ssi on;
 
-    server {
-        listen       80;
-        server_name  localhost;
-
-        #charset koi8-r;
-
-        #access_log  logs/host.access.log  main;
-
 {{range $serviceJson := getvs "/registry/services/specs/default/*"}}
   {{$service := json $serviceJson}}
+  {{$ports := index $service.spec.ports 0}}
   {{if $service.metadata.annotations.nginx}}
-    #{{$service.metadata.annotations.nginx}}
-    {{$nginx := json $service.metadata.annotations.nginx}}
-    {{$ports := index $service.spec.ports 0}}
-    {{range $nginx.locations}}
+    {{range jsonArray $service.metadata.annotations.nginx}}
+    {{if ne .server "default"}}
 
-      location {{.location}} {
+    server {
+        listen 80;
+        server_name {{.server}};
+
+      {{range .locations}}
+
+      location {{.}} {
         proxy_pass http://{{$service.spec.clusterIP}}:{{$ports.port}};
         proxy_cache my-cache;
       }
 
+      {{end}}
+    }
+
+    {{end}}
     {{end}}
   {{end}}
 {{end}}
 
-        location / {
-            root   html;
-            index  index.html index.htm;
-        }
+    server {
+        listen 80 default_server;
 
-        #error_page  404              /404.html;
+{{range $serviceJson := getvs "/registry/services/specs/default/*"}}
+  {{$service := json $serviceJson}}
+  {{$ports := index $service.spec.ports 0}}
+  {{if $service.metadata.annotations.nginx}}
+    {{range jsonArray $service.metadata.annotations.nginx}}
+    {{if eq .server "default"}}
+      {{range .locations}}
 
-        # redirect server error pages to the static page /50x.html
-        #
-        error_page   500 502 503 504  /50x.html;
-        location = /50x.html {
-            root   html;
-        }
+      location {{.}} {
+        proxy_pass http://{{$service.spec.clusterIP}}:{{$ports.port}};
+        proxy_cache my-cache;
+      }
+
+      {{end}}
+    {{end}}
+    {{end}}
+  {{end}}
+{{end}}
+
     }
 
 
