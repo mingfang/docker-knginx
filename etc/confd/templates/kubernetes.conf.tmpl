@@ -19,11 +19,11 @@ http {
     include       mime.types;
     default_type  application/octet-stream;
 
-    #log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
-    #                  '$status $body_bytes_sent "$http_referer" '
-    #                  '"$http_user_agent" "$http_x_forwarded_for"';
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
 
-    #access_log  logs/access.log  main;
+    access_log  /var/log/nginx/access.log  main;
 
     sendfile       on;
     tcp_nopush     on;
@@ -87,7 +87,9 @@ http {
   {{$ports := index $service.spec.ports 0}}
   {{if $service.metadata.annotations.nginx}}
     {{range jsonArray $service.metadata.annotations.nginx}}
-    {{if ne .server "default"}}
+    {{if .http}}
+    {{range .http}}
+      {{if ne .server "default"}}
 
     server {
         listen 80;
@@ -103,6 +105,8 @@ http {
       {{end}}
     }
 
+      {{end}}
+    {{end}}
     {{end}}
     {{end}}
   {{end}}
@@ -116,7 +120,9 @@ http {
   {{$ports := index $service.spec.ports 0}}
   {{if $service.metadata.annotations.nginx}}
     {{range jsonArray $service.metadata.annotations.nginx}}
-    {{if eq .server "default"}}
+    {{if .http}}
+    {{range .http}}
+      {{if eq .server "default"}}
       {{range .locations}}
 
       location {{.}} {
@@ -125,13 +131,14 @@ http {
       }
 
       {{end}}
+      {{end}}
+    {{end}}
     {{end}}
     {{end}}
   {{end}}
 {{end}}
 
     }
-
 
     # HTTPS server
     #
@@ -153,5 +160,30 @@ http {
     #        index  index.html index.htm;
     #    }
     #}
+
+}
+
+stream{
+
+{{range $serviceJson := getvs "/registry/services/specs/default/*"}}
+  {{$service := json $serviceJson}}
+  {{$ports := index $service.spec.ports 0}}
+  {{if $service.metadata.annotations.nginx}}
+    {{range jsonArray $service.metadata.annotations.nginx}}
+    {{if .stream}}
+    {{range .stream}}
+
+    server {
+        listen {{.listen}};
+        proxy_pass {{$service.spec.clusterIP}}:{{$ports.port}};
+        proxy_connect_timeout 1s;
+        proxy_timeout 3s;
+    }
+
+    {{end}}
+    {{end}}
+    {{end}}
+  {{end}}
+{{end}}
 
 }
