@@ -21,7 +21,7 @@ RUN wget http://nginx.org/keys/nginx_signing.key -O - | apt-key add - && \
 RUN apt-get install -y nginx 
 
 #Confd
-RUN wget -O /usr/local/bin/confd  https://github.com/kelseyhightower/confd/releases/download/v0.9.0/confd-0.9.0-linux-amd64 && \
+RUN wget -O /usr/local/bin/confd  https://github.com/kelseyhightower/confd/releases/download/v0.10.0/confd-0.10.0-linux-amd64 && \
     chmod +x /usr/local/bin/confd
 
 ADD etc/confd /etc/confd
