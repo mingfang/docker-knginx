@@ -112,7 +112,7 @@ http {
 
       location {{.}} {
         proxy_pass http://{{$service.spec.clusterIP}}:{{$ports.port}};
-        proxy_cache my-cache;
+        #proxy_cache my-cache;
       }
 
       {{end}}
@@ -141,7 +141,7 @@ http {
       #{{$service.metadata.name}}
       location {{.}} {
         proxy_pass http://{{$service.spec.clusterIP}}:{{$ports.port}};
-        proxy_cache my-cache;
+        #proxy_cache my-cache;
       }
 
       {{end}}
