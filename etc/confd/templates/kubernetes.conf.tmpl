@@ -91,6 +91,8 @@ http {
     proxy_set_header Connection $connection_upgrade;
 
     ssi on;
+    #compresson causes SSI problems, disable it
+    proxy_set_header Accept-Encoding "";
 
 {{range $serviceJson := getvs "/registry/services/specs/default/*"}}
   {{$service := json $serviceJson}}
