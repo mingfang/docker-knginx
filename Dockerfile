@@ -76,6 +76,16 @@ RUN luarocks install lua-resty-session
 #Hack Lua XML to fix namespace problem
 COPY init.lua /usr/local/openresty/luajit/share/lua/5.1/xml/init.lua
 
+#ssl
+RUN mkdir -p /etc/nginx/ssl && \
+    cd /etc/nginx/ssl && \
+    export PASSPHRASE=$(head -c 500 /dev/urandom | tr -dc a-z0-9A-Z | head -c 128; echo) && \
+    openssl genrsa -des3 -out server.key -passout env:PASSPHRASE 2048 && \
+    openssl req -new -batch -key server.key -out server.csr -subj "/C=/ST=/O=org/localityName=/commonName=org/organizationalUnitName=org/emailAddress=/" -passin env:PASSPHRASE && \
+    openssl rsa -in server.key -out server.key -passin env:PASSPHRASE && \
+    openssl x509 -req -days 3650 -in server.csr -signkey server.key -out server.crt
+
+COPY nginx.conf /etc/nginx/
 COPY etc/confd /etc/confd
 COPY test.sh /
 COPY redis.conf /etc/
