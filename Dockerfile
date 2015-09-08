@@ -45,7 +45,8 @@ RUN cd ngx* && \
       --http-proxy-temp-path=/var/cache/nginx/proxy_temp \
       --with-file-aio \
       --with-threads \
-      --with-stream && \
+      --with-stream \
+      --with-http_stub_status_module && \
 
     make -j4 && \
     make install && \
@@ -66,12 +67,14 @@ RUN wget -O - http://luarocks.org/releases/luarocks-2.2.2.tar.gz | tar zx && \
       make -j4 && \
       make install && \
       rm -rf /luarocks-*
-RUN ln -s /usr/local/openresty/luajit/bin/luajit-2.1.0-alpha /usr/bin/lua && \
-    ln -s /usr/local/openresty/luajit/bin/luarocks /usr/bin/luarocks
+RUN cd /usr/local/openresty/luajit/bin && \
+    ln -s luajit-* lua
+ENV PATH=/usr/local/openresty/luajit/bin:$PATH
 
 #Lua Libraries
 RUN luarocks install xml
 RUN luarocks install lua-resty-session
+RUN luarocks install inspect
 
 #Hack Lua XML to fix namespace problem
 COPY init.lua /usr/local/openresty/luajit/share/lua/5.1/xml/init.lua
