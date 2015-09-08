@@ -93,5 +93,9 @@ COPY etc/confd /etc/confd
 COPY test.sh /
 COPY redis.conf /etc/
 
+#SAML
+COPY saml/saml.conf /etc/nginx/
+COPY saml/saml.lua /usr/local/openresty/lualib/
+
 #Add runit services
 COPY sv /etc/service 
