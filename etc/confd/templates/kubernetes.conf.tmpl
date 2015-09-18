@@ -56,14 +56,6 @@ http {
     open_file_cache_min_uses 2;
     open_file_cache_errors   on;
 
-    proxy_cache_path /var/cache levels=1:2 keys_zone=my-cache:8m max_size=1000m inactive=600m;
-    proxy_temp_path /var/cache/tmp;
-    proxy_cache_valid 200 302 60m;
-    proxy_cache_valid 404 1m;
-    proxy_cache_use_stale  error timeout invalid_header updating
-                           http_500 http_502 http_503 http_504;
-    add_header X-Cache $upstream_cache_status;
-
     proxy_redirect          off;
     proxy_set_header        Host            $host;
     proxy_set_header        X-Real-IP       $remote_addr;
