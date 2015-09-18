@@ -95,12 +95,13 @@ http {
 
 {{range $serviceJson := getvs "/registry/services/specs/default/*"}}
   {{$service := json $serviceJson}}
-  {{$ports := index $service.spec.ports 0}}
+  {{$defaultPort := index $service.spec.ports 0}}
   {{if $service.metadata.annotations.nginx}}
     {{range jsonArray $service.metadata.annotations.nginx}}
     {{if .http}}
     {{range .http}}
       {{if ne .server "default"}}
+      {{$port := or .port $defaultPort.port}}
 
     #{{$service.metadata.name}}
     server {
@@ -114,7 +115,7 @@ http {
       {{range .locations}}
 
       location {{.}} {
-        proxy_pass http://{{$service.spec.clusterIP}}:{{$ports.port}};
+        proxy_pass http://{{$service.spec.clusterIP}}:{{$port}};
         #proxy_cache my-cache;
       }
 
@@ -137,17 +138,18 @@ http {
 
 {{range $serviceJson := getvs "/registry/services/specs/default/*"}}
   {{$service := json $serviceJson}}
-  {{$ports := index $service.spec.ports 0}}
+  {{$defaultPort := index $service.spec.ports 0}}
   {{if $service.metadata.annotations.nginx}}
     {{range jsonArray $service.metadata.annotations.nginx}}
     {{if .http}}
     {{range .http}}
       {{if eq .server "default"}}
+      {{$port := or .port $defaultPort.port}}
       {{range .locations}}
 
       #{{$service.metadata.name}}
       location {{.}} {
-        proxy_pass http://{{$service.spec.clusterIP}}:{{$ports.port}};
+        proxy_pass http://{{$service.spec.clusterIP}}:{{$port}};
         #proxy_cache my-cache;
       }
 
@@ -188,7 +190,6 @@ stream{
 
 {{range $serviceJson := getvs "/registry/services/specs/default/*"}}
   {{$service := json $serviceJson}}
-  {{$ports := index $service.spec.ports 0}}
   {{if $service.metadata.annotations.nginx}}
     {{range jsonArray $service.metadata.annotations.nginx}}
     {{if .stream}}
@@ -197,7 +198,7 @@ stream{
     #{{$service.metadata.name}}
     server {
         listen {{.listen}};
-        proxy_pass {{$service.spec.clusterIP}}:{{$ports.port}};
+        proxy_pass {{$service.spec.clusterIP}}:{{or .port .listen}};
         proxy_connect_timeout 1s;
         proxy_timeout 3s;
     }
