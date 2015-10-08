@@ -81,17 +81,19 @@ http {
     #compresson causes SSI problems, disable it
     proxy_set_header Accept-Encoding "";
 
+#Annotation Env: {{getenv "ANNOTATION"}} default: {{(or (getenv "ANNOTATION") "nginx")}}
 {{range $serviceJson := getvs "/registry/services/specs/default/*"}}
   {{$service := json $serviceJson}}
   {{$defaultPort := index $service.spec.ports 0}}
-  {{if $service.metadata.annotations.nginx}}
-    {{range jsonArray $service.metadata.annotations.nginx}}
+  {{if $service.metadata.annotations}}
+    {{$annotation := (index $service.metadata.annotations (or (getenv "ANNOTATION") "nginx"))}}
+    {{if $annotation}}
+    {{range jsonArray $annotation}}
     {{if .http}}
     {{range .http}}
       {{if ne .server "default"}}
       {{$port := or .port $defaultPort.port}}
-
-    #{{$service.metadata.name}}
+    #{{$service.metadata.name}} {{$annotation}}
     server {
         listen 80;
         server_name {{.server}};
@@ -114,6 +116,7 @@ http {
     {{end}}
     {{end}}
   {{end}}
+  {{end}}
 {{end}}
 
     server {
@@ -126,8 +129,10 @@ http {
 {{range $serviceJson := getvs "/registry/services/specs/default/*"}}
   {{$service := json $serviceJson}}
   {{$defaultPort := index $service.spec.ports 0}}
-  {{if $service.metadata.annotations.nginx}}
-    {{range jsonArray $service.metadata.annotations.nginx}}
+  {{if $service.metadata.annotations}}
+    {{$annotation := (index $service.metadata.annotations (or (getenv "ANNOTATION") "nginx"))}}
+    {{if $annotation}}
+    {{range jsonArray $annotation}}
     {{if .http}}
     {{range .http}}
       {{if eq .server "default"}}
@@ -145,6 +150,7 @@ http {
     {{end}}
     {{end}}
   {{end}}
+  {{end}}
 {{end}}
 
     }
@@ -154,8 +160,10 @@ stream{
 
 {{range $serviceJson := getvs "/registry/services/specs/default/*"}}
   {{$service := json $serviceJson}}
-  {{if $service.metadata.annotations.nginx}}
-    {{range jsonArray $service.metadata.annotations.nginx}}
+  {{if $service.metadata.annotations}}
+    {{$annotation := (index $service.metadata.annotations (or (getenv "ANNOTATION") "nginx"))}}
+    {{if $annotation}}
+    {{range jsonArray $annotation}}
     {{if .stream}}
     {{range .stream}}
 
@@ -170,6 +178,7 @@ stream{
     {{end}}
     {{end}}
     {{end}}
+  {{end}}
   {{end}}
 {{end}}
 
