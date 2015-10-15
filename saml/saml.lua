@@ -6,9 +6,10 @@ function saml.checkAccess()
     local session = require "resty.session".open()
     -- no session, redirect to idp
     if not session.data.nameId then
-        ngx.log(ngx.ERR, "redirect to idp")
         local relayState = ngx_var.scheme.."://"..ngx.req.get_headers().host..ngx_var.uri
-        return ngx.redirect(ngx_var.saml_idp_url.."?RelayState="..relayState)
+        local redirectUrl = ngx_var.saml_idp_url.."?RelayState="..relayState
+        ngx.log(ngx.ERR, "redirect to idp:"..redirectUrl)
+        return ngx.redirect(redirectUrl)
     end
     -- has session, enrich request with session data
     for key, value in pairs(session.data) do
