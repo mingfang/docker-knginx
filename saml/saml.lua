@@ -60,4 +60,9 @@ function saml.acs()
     end
 end
 
+function saml.logout()
+    local session = require "resty.session".start()
+    session:destroy()
+end
+
 return saml
