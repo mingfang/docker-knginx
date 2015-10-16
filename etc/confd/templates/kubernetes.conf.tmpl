@@ -9,6 +9,8 @@ events {
     multi_accept on;
 }
 
+env SAML_IDP_URL;
+env SESSION_SECRET;
 
 http {
     include       mime.types;
@@ -24,7 +26,7 @@ http {
     tcp_nopush     on;
     tcp_nodelay    off;
     send_timeout   30;
-    
+
     aio threads;
 
     keepalive_timeout  65;
@@ -66,9 +68,9 @@ http {
     proxy_send_timeout      90;
     proxy_read_timeout      90;
     proxy_buffers           32 4k;
-    
+
     #websockets
-    map $http_upgrade $connection_upgrade {  
+    map $http_upgrade $connection_upgrade {
     	default upgrade;
     	'' close;
     }
@@ -125,6 +127,26 @@ http {
         listen 443 default_server ssl;
         ssl_certificate /etc/nginx/ssl/server.crt;
         ssl_certificate_key /etc/nginx/ssl/server.key;
+
+        #Configure lua-resty-session
+        set $session_cipher none;
+        set $session_storage redis;
+        set $session_redis_prefix        sessions;
+        set $session_redis_socket        unix:/tmp/redis.sock;
+        set $session_redis_host          127.0.0.1;
+        set $session_redis_port          6379;
+        set $session_redis_uselocking    on;
+        set $session_redis_spinlockwait  10000;
+        set $session_redis_maxlockwait   30;
+        set $session_redis_pool_timeout  45;
+        set $session_redis_pool_size     10;
+
+        #POST by IdP with AuthResponse
+        location /saml/acs {
+            access_by_lua 'require("saml").acs()';
+        }
+        #set env to enable saml by default
+        #access_by_lua 'require("saml").checkAccess()';
 
 {{range $serviceJson := getvs "/registry/services/specs/default/*"}}
   {{$service := json $serviceJson}}
