@@ -2,14 +2,16 @@ local ngx_var      = ngx.var
 
 local saml = {}
 
+-- call with access_by_lua 'require("saml").checkAccess()';
 function saml.checkAccess()
     local session = require "resty.session".open()
     -- no session, redirect to idp
     if not session.data.nameId then
-        local relayState = ngx_var.scheme.."://"..ngx.req.get_headers().host..ngx_var.uri
-        local redirectUrl = ngx_var.saml_idp_url.."?RelayState="..relayState
-        ngx.log(ngx.ERR, "redirect to idp:"..redirectUrl)
-        return ngx.redirect(redirectUrl)
+        local saml_idp_url = os.getenv("SAML_IDP_URL")
+        local relay_state = ngx_var.scheme.."://"..ngx.req.get_headers().host..ngx_var.uri
+        local redirect_url = saml_idp_url.."?RelayState="..relay_state
+        ngx.log(ngx.ERR, "redirect to idp:"..redirect_url)
+        return ngx.redirect(redirect_url)
     end
     -- has session, enrich request with session data
     for key, value in pairs(session.data) do
@@ -36,6 +38,9 @@ function saml.acs()
 
     -- start session and store all assertions
     local session = require "resty.session".start()
+    if os.getenv("SESSION_SECRET") then
+        session.secret = os.getenv("SESSION_SECRET")
+    end
     session.data.nameId = xml.find(samlResponse, "NameID")[1]
     session.data.status = xml.find(samlResponse, "StatusCode").Value
 
@@ -49,6 +54,8 @@ function saml.acs()
       end
     end
 
+    -- todo: load external session data
+        
     session:save()
 
     local relayState = args.RelayState
@@ -57,6 +64,7 @@ function saml.acs()
     if (relayState ~= nill and relayState ~= "") then
       return ngx.redirect(relayState)
     else
+      -- todo: this is not a good idea    
       return ngx.redirect("/saml/echo")
     end
 end
