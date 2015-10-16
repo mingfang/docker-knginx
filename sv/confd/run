@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#sv start register  || exit 1
+sv start nginx  || exit 1
 
 source /etc/envvars
 env

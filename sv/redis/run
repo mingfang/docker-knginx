@@ -1,3 +1,9 @@
-#!/bin/sh
+#!/bin/bash
+
+#sv start register  || exit 1
+
+source /etc/envvars
+env
+
 exec 2>&1
 exec redis-server /etc/redis.conf
