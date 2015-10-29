@@ -21,7 +21,7 @@ RUN wget -O /usr/local/bin/confd  https://github.com/kelseyhightower/confd/relea
     chmod +x /usr/local/bin/confd
 
 #Redis
-RUN wget -O - http://download.redis.io/releases/redis-3.0.3.tar.gz | tar zx && \
+RUN wget -O - http://download.redis.io/releases/redis-3.0.5.tar.gz | tar zx && \
     cd redis-* && \
     make -j4 && \
     make install && \
