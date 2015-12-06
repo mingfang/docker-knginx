@@ -1,0 +1,14 @@
+#!/bin/bash
+
+if [ $REGISTRY ]; then
+  if [[ "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" =~  .*docker-([a-zA-Z0-9_\-]*) ]]; then
+    name=${BASH_REMATCH[1]}
+    sha=`git rev-parse HEAD`
+    if [ $sha ]; then
+      docker tag -f $name "$REGISTRY/$name:$sha"
+      docker push "$REGISTRY/$name:$sha" 
+      docker tag -f $name "$REGISTRY/$name:latest"
+      docker push "$REGISTRY/$name:latest" 
+    fi
+  fi
+fi
