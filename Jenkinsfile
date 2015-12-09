@@ -3,7 +3,7 @@ node {
    checkout scm
    
    stage 'Pull Ubuntu'
-   docker pull ubuntu:14.04
+   sh "docker pull ubuntu:14.04"
 
    stage 'Build'
    sh "./build" 
