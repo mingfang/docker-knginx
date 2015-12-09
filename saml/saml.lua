@@ -12,7 +12,7 @@ local profileLocation = os.getenv("PROFILE_LOCATION")
 -- call with access_by_lua 'require("saml").checkAccess()';
 function saml.checkAccess()
     local session = require "resty.session".open()
-    
+
     -- no session, redirect to idp
     if not session.data.nameId then
         local relay_state = ngx_var.scheme.."://"..ngx.req.get_headers().host..ngx_var.uri
@@ -20,7 +20,7 @@ function saml.checkAccess()
         -- ngx.log(ngx.ERR, "redirect to idp:"..redirect_url)
         return ngx.redirect(redirect_url)
     end
-    
+
     -- enrich request with session data
     for key, value in pairs(session.data) do
         ngx.req.set_header(key, value)
@@ -63,6 +63,11 @@ function saml.acs()
 
     -- load external session data
     if profileLocation then
+        -- enrich request with session data
+        for key, value in pairs(session.data) do
+            ngx.req.set_header(key, value)
+        end
+        -- load profile
         local res = ngx.location.capture(profileLocation)
         if res.status == 200 then
             local profile = cjson.decode(res.body)
