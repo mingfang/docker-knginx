@@ -14,7 +14,7 @@ env SESSION_SECRET;
 
 http {
     include       mime.types;
-    default_type  application/octet-stream;
+    default_type  text/html;
 
     log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
                       '$status $body_bytes_sent "$http_referer" '
@@ -128,25 +128,11 @@ http {
         ssl_certificate /etc/nginx/ssl/server.crt;
         ssl_certificate_key /etc/nginx/ssl/server.key;
 
-        #Configure lua-resty-session
-        set $session_cipher none;
-        set $session_storage redis;
-        set $session_redis_prefix        sessions;
-        set $session_redis_socket        unix:/tmp/redis.sock;
-        set $session_redis_host          127.0.0.1;
-        set $session_redis_port          6379;
-        set $session_redis_uselocking    on;
-        set $session_redis_spinlockwait  10000;
-        set $session_redis_maxlockwait   30;
-        set $session_redis_pool_timeout  45;
-        set $session_redis_pool_size     10;
-
-        #POST by IdP with AuthResponse
-        location /saml/acs {
-            access_by_lua 'require("saml").acs()';
-        }
-        #set env to enable saml by default
-        #access_by_lua 'require("saml").checkAccess()';
+{{$IDP_URL := getenv "SAML_IDP_URL"}}
+{{if $IDP_URL}}
+        #Enable SAML
+        include saml.conf;
+{{end}}
 
 {{range $serviceJson := getvs "/registry/services/specs/default/*"}}
   {{$service := json $serviceJson}}

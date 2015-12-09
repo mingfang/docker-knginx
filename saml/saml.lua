@@ -24,7 +24,7 @@ function saml.acs()
     ngx.req.read_body()
     local args, err = ngx.req.get_post_args()
     if not args then
-        ngx.say("failed to get post args: ", err)
+        ngx.log(ngx.ERR, "failed to get post args: ", err)
         return
     end
     local samlResponseXML = ngx.decode_base64(args.SAMLResponse)
@@ -55,23 +55,28 @@ function saml.acs()
     end
 
     -- todo: load external session data
-        
+
     session:save()
+    ngx.log(ngx.ERR, "login: "..session.data.nameId)
 
     local relayState = args.RelayState
-    -- ngx.log(ngx.ERR, "acs relayState"..relayState)
+    -- ngx.log(ngx.ERR, "acs relayState:"..relayState)
 
     if (relayState ~= nill and relayState ~= "") then
       return ngx.redirect(relayState)
     else
-      -- todo: this is not a good idea    
-      return ngx.redirect("/saml/echo")
+      return ngx.exit(200)
     end
 end
 
 function saml.logout()
-    local session = require "resty.session".start()
+    local session = require "resty.session".open()
+    if session.data.nameId then
+        ngx.log(ngx.ERR, "logout: "..session.data.nameId)
+    end
+
     session:destroy()
+    return ngx.exit(200)
 end
 
 return saml
