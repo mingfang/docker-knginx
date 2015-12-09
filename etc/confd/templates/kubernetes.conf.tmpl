@@ -11,6 +11,7 @@ events {
 
 env SAML_IDP_URL;
 env SESSION_SECRET;
+env PROFILE_LOCATION;
 
 http {
     include       mime.types;
@@ -132,6 +133,11 @@ http {
 {{if $IDP_URL}}
         #Enable SAML
         include saml.conf;
+
+        #PROFILE_LOCATION must point to something like this
+        #location /profile {
+        #  proxy_pass http://192.168.1.160:3001;
+        #}
 {{end}}
 
 {{range $serviceJson := getvs "/registry/services/specs/default/*"}}
