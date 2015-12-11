@@ -139,6 +139,12 @@ http {
         #  proxy_pass http://192.168.1.160:3001;
         #}
 {{end}}
+        #Load Balancer Status
+        location /lb-status {
+          access_log off;
+          return 200;
+        }
+
 
 {{range $serviceJson := getvs "/registry/services/specs/default/*"}}
   {{$service := json $serviceJson}}
