@@ -21,7 +21,7 @@ RUN wget -O /usr/local/bin/confd  https://github.com/kelseyhightower/confd/relea
     chmod +x /usr/local/bin/confd
 
 #Redis
-RUN wget -O - http://download.redis.io/releases/redis-3.0.5.tar.gz | tar zx && \
+RUN wget -O - http://download.redis.io/releases/redis-3.0.6.tar.gz | tar zx && \
     cd redis-* && \
     make -j4 && \
     make install && \
@@ -29,7 +29,7 @@ RUN wget -O - http://download.redis.io/releases/redis-3.0.5.tar.gz | tar zx && \
     rm -rf /redis-*
 
 #OpenResty
-RUN wget -O - https://openresty.org/download/ngx_openresty-1.9.3.1.tar.gz | tar zx
+RUN wget -O - https://openresty.org/download/ngx_openresty-1.9.7.1.tar.gz | tar zx
 RUN cd ngx* && \
     ./configure \
       --with-pcre-jit \
@@ -62,7 +62,7 @@ RUN wget -O - http://luarocks.org/releases/luarocks-2.2.2.tar.gz | tar zx && \
     ./configure \
       --prefix=/usr/local/openresty/luajit \
       --with-lua=/usr/local/openresty/luajit/ \
-      --lua-suffix=jit-2.1.0-alpha \
+      --lua-suffix=jit-2.1.0-beta1 \
       --with-lua-include=/usr/local/openresty/luajit/include/luajit-2.1 && \
       make -j4 && \
       make install && \
