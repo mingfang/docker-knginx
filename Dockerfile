@@ -32,6 +32,7 @@ RUN wget -O - http://download.redis.io/releases/redis-3.0.6.tar.gz | tar zx && \
 RUN wget -O - https://openresty.org/download/ngx_openresty-1.9.7.1.tar.gz | tar zx
 RUN cd ngx* && \
     ./configure \
+     --with-http_v2_module \
       --with-pcre-jit \
       --with-ipv6 \
       --prefix=/usr/local/openresty \
