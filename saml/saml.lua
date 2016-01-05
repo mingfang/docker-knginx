@@ -6,12 +6,12 @@ local ngx_var = ngx.var
 local saml = {}
 
 local saml_idp_url = os.getenv("SAML_IDP_URL")
-local secret = os.getenv("SESSION_SECRET")
+local secret = os.getenv("SESSION_SECRET") or "secret123"
 local profileLocation = os.getenv("PROFILE_LOCATION")
 
 -- call with access_by_lua 'require("saml").checkAccess()';
 function saml.checkAccess()
-    local session = require "resty.session".open()
+    local session = require "resty.session".open{ secret = secret }
 
     -- no session, redirect to idp
     if not session.data.nameId then
@@ -43,10 +43,7 @@ function saml.acs()
     xml.removeNamespace(samlResponse, "urn:oasis:names:tc:SAML:2.0:assertion")
 
     -- start session
-    local session = require "resty.session".start()
-    if secret then
-        session.secret = secret
-    end
+    local session = require "resty.session".start{ secret = secret }
     session.data.nameId = xml.find(samlResponse, "NameID")[1]
     session.data.status = xml.find(samlResponse, "StatusCode").Value
 
@@ -98,7 +95,7 @@ end
 
 -- destroy session
 function saml.logout()
-    local session = require "resty.session".open()
+    local session = require "resty.session".open{ secret = secret }
     if session.data.nameId then
         ngx.log(ngx.ERR, "logout: "..session.data.nameId)
     end
