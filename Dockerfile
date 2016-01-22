@@ -28,11 +28,14 @@ RUN wget -O - http://download.redis.io/releases/redis-3.0.6.tar.gz | tar zx && \
     cp redis.conf /etc/redis.conf && \
     rm -rf /redis-*
 
+
 #OpenResty
-RUN wget -O - https://openresty.org/download/ngx_openresty-1.9.7.1.tar.gz | tar zx
-RUN cd ngx* && \
+RUN wget -O - https://github.com/nbs-system/naxsi/archive/0.54.tar.gz | tar zx && \
+    wget -O - https://openresty.org/download/ngx_openresty-1.9.7.2.tar.gz | tar zx && \
+    cd ngx* && \
     ./configure \
-     --with-http_v2_module \
+      --add-module=../naxsi-0.54/naxsi_src/ \
+      --with-http_v2_module \
       --with-pcre-jit \
       --with-ipv6 \
       --prefix=/usr/local/openresty \
@@ -51,7 +54,9 @@ RUN cd ngx* && \
 
     make -j4 && \
     make install && \
-    rm -rf /ngx*
+    rm -rf /ngx* && \
+    rm -rf /naxsi*
+
 RUN mkdir -p /etc/nginx && \
     mkdir -p /var/log/nginx && \
     mkdir -p /var/cache/nginx/client_temp && \
@@ -97,6 +102,10 @@ COPY redis.conf /etc/
 #SAML
 COPY saml/saml.conf /etc/nginx/
 COPY saml/saml.lua /usr/local/openresty/lualib/
+
+#NAXSI
+COPY etc/naxsi.rules /etc/nginx/
+COPY etc/naxsi/naxsi_core.rules /etc/nginx/naxsi/
 
 #Add runit services
 COPY sv /etc/service 

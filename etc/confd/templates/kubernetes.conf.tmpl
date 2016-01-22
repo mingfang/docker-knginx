@@ -14,6 +14,7 @@ env SESSION_SECRET;
 env PROFILE_LOCATION;
 
 http {
+    include	  /etc/nginx/naxsi/*;
     include       mime.types;
     default_type  text/html;
 
@@ -150,6 +151,14 @@ http {
           return 200;
         }
 
+	#naxsi
+	location / {
+          include /etc/nginx/naxsi.rules;
+	}
+	location /RequestDenied {
+          return 418;
+	}
+
 
 {{range $serviceJson := getvs "/registry/services/specs/default/*"}}
   {{$service := json $serviceJson}}
@@ -166,6 +175,7 @@ http {
 
       #{{$service.metadata.name}}
       location {{.}} {
+        include /etc/nginx/naxsi.rules;
         proxy_pass http://{{$service.spec.clusterIP}}:{{$port}};
       }
 
