@@ -86,6 +86,7 @@ RUN luarocks install inspect
 COPY init.lua /usr/local/openresty/luajit/share/lua/5.1/xml/init.lua
 
 #ssl
+RUN openssl dhparam -out /etc/ssl/dhparams.pem 2048
 RUN mkdir -p /etc/nginx/ssl && \
     cd /etc/nginx/ssl && \
     export PASSPHRASE=$(head -c 500 /dev/urandom | tr -dc a-z0-9A-Z | head -c 128; echo) && \

@@ -86,6 +86,7 @@ http {
     proxy_set_header Accept-Encoding "";
 
     #SSL
+    ssl_dhparam /etc/ssl/dhparams.pem;
     ssl_certificate /etc/nginx/ssl/server.crt;
     ssl_certificate_key /etc/nginx/ssl/server.key;
 
