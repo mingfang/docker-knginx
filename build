@@ -1,4 +1,4 @@
 #!/bin/bash
-[[ "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" =~  .*docker-([a-zA-Z0-9_\-]*) ]]
+source helper
 
-docker build $@ -t ${BASH_REMATCH[1]} . 
+docker build $@ -t ${IMAGE} . 
