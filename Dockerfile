@@ -17,7 +17,7 @@ RUN apt-get install -y vim less net-tools inetutils-ping wget curl git telnet nm
 RUN apt-get install -y libreadline-dev libncurses5-dev libpcre3-dev libssl-dev perl make build-essential
 
 #Confd
-RUN wget -O /usr/local/bin/confd  https://github.com/kelseyhightower/confd/releases/download/v0.10.0/confd-0.10.0-linux-amd64 && \
+RUN wget -O /usr/local/bin/confd  https://github.com/kelseyhightower/confd/releases/download/v0.11.0/confd-0.11.0-linux-amd64 && \
     chmod +x /usr/local/bin/confd
 
 #Redis
@@ -31,8 +31,8 @@ RUN wget -O - http://download.redis.io/releases/redis-3.0.6.tar.gz | tar zx && \
 
 #OpenResty
 RUN wget -O - https://github.com/nbs-system/naxsi/archive/0.54.tar.gz | tar zx && \
-    wget -O - https://openresty.org/download/ngx_openresty-1.9.7.2.tar.gz | tar zx && \
-    cd ngx* && \
+    wget -O - https://openresty.org/download/openresty-1.9.7.3.tar.gz | tar zx && \
+    cd openresty* && \
     ./configure \
       --add-module=../naxsi-0.54/naxsi_src/ \
       --with-http_v2_module \
@@ -54,7 +54,7 @@ RUN wget -O - https://github.com/nbs-system/naxsi/archive/0.54.tar.gz | tar zx &
 
     make -j4 && \
     make install && \
-    rm -rf /ngx* && \
+    rm -rf /openresty* && \
     rm -rf /naxsi*
 
 RUN mkdir -p /etc/nginx && \
