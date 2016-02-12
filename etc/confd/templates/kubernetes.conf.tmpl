@@ -18,6 +18,7 @@ http {
     include       mime.types;
     default_type  text/html;
 
+
     log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
                       '$status $body_bytes_sent "$http_referer" '
                       '"$http_user_agent" "$http_x_forwarded_for"';
@@ -102,6 +103,8 @@ http {
     ssl_session_tickets off;
     ssl_stapling on;
     #ssl_stapling_verify on;
+
+    proxy_set_header X-Tracer $remote_addr-$connection-$connection_requests;
 
 #Annotation Env: {{getenv "ANNOTATION"}} default: {{(or (getenv "ANNOTATION") "nginx")}}
 {{range $serviceJson := getvs "/registry/services/specs/default/*"}}
