@@ -3,7 +3,6 @@
 sv start redis  || exit 1
 
 source /etc/envvars
-env
 
 exec 2>&1
 exec /usr/sbin/nginx -g "daemon off;"
