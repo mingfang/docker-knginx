@@ -3,7 +3,6 @@
 sv start nginx  || exit 1
 
 source /etc/envvars
-env
 
 until curl http://$ETCD_HOST:4001/v2/keys/registry -s -S -w "%{http_code}" -o /dev/null | grep 200; do echo "waiting for ETCD to come online..."; sleep 3; done
 
