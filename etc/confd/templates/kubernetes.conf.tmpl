@@ -106,6 +106,7 @@ http {
     #ssl_stapling_verify on;
 
     proxy_set_header X-Tracer $remote_addr-$connection-$connection_requests;
+    proxy_set_header X-B3-TraceId $remote_addr-$connection-$connection_requests;
 
 #Annotation Env: {{getenv "ANNOTATION"}} default: {{(or (getenv "ANNOTATION") "nginx")}}
 {{range $serviceJson := getvs "/registry/services/specs/default/*"}}
