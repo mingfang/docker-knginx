@@ -72,6 +72,7 @@ http {
     proxy_send_timeout      90;
     proxy_read_timeout      90;
     proxy_buffers           32 4k;
+    underscores_in_headers  on;
 
     #websockets
     map $http_upgrade $connection_upgrade {
