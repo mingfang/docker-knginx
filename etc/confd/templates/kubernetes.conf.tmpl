@@ -108,7 +108,10 @@ http {
     proxy_set_header X-Tracer $remote_addr-$connection-$connection_requests;
     proxy_set_header X-B3-TraceId $remote_addr-$connection-$connection_requests;
 
-#Annotation Env: {{getenv "ANNOTATION"}} default: {{(or (getenv "ANNOTATION") "nginx")}}
+# Annotation Env: {{getenv "ANNOTATION"}} default: {{(or (getenv "ANNOTATION") "nginx")}}
+
+# virtual servers
+
 {{range $serviceJson := getvs "/registry/services/specs/default/*"}}
   {{$service := json $serviceJson}}
   {{$defaultPort := index $service.spec.ports 0}}
@@ -143,12 +146,20 @@ http {
   {{end}}
 {{end}}
 
-    server {
-        listen 80 default_server;
-        listen 443 default_server deferred ssl;
+# default server
 
 {{$IDP_URL := getenv "SAML_IDP_URL"}}
 {{if $IDP_URL}}
+    #redirect to https
+    server {
+      listen 80 default_server;
+      return 301 https://$host$request_uri;
+    }
+    
+    #https only
+    server {
+        listen 443 default_server deferred ssl;
+
         #Enable SAML
         include saml.conf;
 
@@ -156,9 +167,18 @@ http {
         #location /profile {
         #  proxy_pass http://192.168.1.160:3001;
         #}
+{{else}}
+    server {
+        listen 80 default_server;
+        listen 443 default_server deferred ssl;
 {{end}}
+
         #Load Balancer Status
         location /lb-status {
+          access_log off;
+          return 200;
+        }
+        location /lbstatus {
           access_log off;
           return 200;
         }
