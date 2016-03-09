@@ -12,6 +12,7 @@ events {
 env SAML_IDP_URL;
 env SESSION_SECRET;
 env PROFILE_LOCATION;
+env LOGOUT_LOCATION;
 env ERROR_PAGE_404;
 
 http {
@@ -168,6 +169,12 @@ http {
         #location /profile {
         #  proxy_pass http://192.168.1.160:3001;
         #}
+
+        #LOGOUT_LOCATION must point to something like this
+	#location /logout {
+        #  proxy_pass http://192.168.1.160:3001;
+        #}
+        
 {{else}}
     server {
         listen 80 default_server;

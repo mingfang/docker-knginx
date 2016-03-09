@@ -8,6 +8,7 @@ local saml = {}
 local saml_idp_url = os.getenv("SAML_IDP_URL")
 local secret = os.getenv("SESSION_SECRET") or "secret123"
 local profileLocation = os.getenv("PROFILE_LOCATION")
+local logoutLocation = os.getenv("LOGOUT_LOCATION")
 
 -- call with access_by_lua 'require("saml").checkAccess()';
 function saml.checkAccess()
@@ -98,6 +99,11 @@ function saml.logout()
     local session = require "resty.session".open{ secret = secret }
     if session.data.nameId then
         ngx.log(ngx.INFO, "logout: "..session.data.nameId)
+    end
+
+    if logoutLocation then
+        local res = ngx.location.capture(logoutLocation)
+        ngx.log(ngx.INFO, logoutLocation.." "..res.status)
     end
 
     session:destroy()
