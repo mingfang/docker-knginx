@@ -21,7 +21,7 @@ RUN wget -O /usr/local/bin/confd  https://github.com/kelseyhightower/confd/relea
     chmod +x /usr/local/bin/confd
 
 #Redis
-RUN wget -O - http://download.redis.io/releases/redis-3.0.6.tar.gz | tar zx && \
+RUN wget -O - http://download.redis.io/releases/redis-3.0.7.tar.gz | tar zx && \
     cd redis-* && \
     make -j4 && \
     make install && \
@@ -94,6 +94,9 @@ RUN mkdir -p /etc/nginx/ssl && \
     openssl req -new -batch -key server.key -out server.csr -subj "/C=/ST=/O=org/localityName=/commonName=org/organizationalUnitName=org/emailAddress=/" -passin env:PASSPHRASE && \
     openssl rsa -in server.key -out server.key -passin env:PASSPHRASE && \
     openssl x509 -req -days 3650 -in server.csr -signkey server.key -out server.crt
+
+# Force triggering ERROR_PAGE_404 page
+RUN rm -rf /usr/local/openresty/nginx/html
 
 COPY nginx.conf /etc/nginx/
 COPY etc/confd /etc/confd
