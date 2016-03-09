@@ -12,6 +12,7 @@ events {
 env SAML_IDP_URL;
 env SESSION_SECRET;
 env PROFILE_LOCATION;
+env ERROR_PAGE_404;
 
 http {
     include	  /etc/nginx/naxsi/*;
@@ -173,6 +174,16 @@ http {
         listen 443 default_server deferred ssl;
 {{end}}
 
+{{$ERROR_PAGE_404 := getenv "ERROR_PAGE_404"}}
+# ERROR_PAGE_404 = {{$ERROR_PAGE_404}}
+{{if $ERROR_PAGE_404}}
+        error_page 404 /custom_404.html;
+        location = /custom_404.html {
+        	return 302 {{$ERROR_PAGE_404}};
+                internal;
+        }
+{{end}}
+
         #Load Balancer Status
         location /lb-status {
           access_log off;
@@ -184,9 +195,6 @@ http {
         }
 
 	#naxsi
-	location / {
-          include /etc/nginx/naxsi.rules;
-	}
 	location /RequestDenied {
           return 418;
 	}
