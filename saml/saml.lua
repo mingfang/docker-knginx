@@ -102,6 +102,10 @@ function saml.logout()
     end
 
     if logoutLocation then
+        -- enrich request with session data
+        for key, value in pairs(session.data) do
+            ngx.req.set_header(key, value)
+        end
         local res = ngx.location.capture(logoutLocation)
         ngx.log(ngx.INFO, logoutLocation.." "..res.status)
     end
