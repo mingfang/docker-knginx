@@ -82,7 +82,7 @@ function saml.acs()
 
     -- session is good
     session:save()
-    ngx.log(ngx.ERR, "login: "..session.data.nameId)
+    ngx.log(ngx.INFO, "login: "..session.data.nameId)
 
     -- redirect to RelayState
     local relayState = args.RelayState
@@ -97,7 +97,7 @@ end
 function saml.logout()
     local session = require "resty.session".open{ secret = secret }
     if session.data.nameId then
-        ngx.log(ngx.ERR, "logout: "..session.data.nameId)
+        ngx.log(ngx.INFO, "logout: "..session.data.nameId)
     end
 
     session:destroy()
