@@ -1,7 +1,7 @@
 worker_processes auto;
 worker_rlimit_nofile 10240;
 
-error_log  /var/log/nginx/error.log;
+error_log  /var/log/nginx/error.log info;
 
 events {
     worker_connections  2048;
@@ -16,7 +16,7 @@ env LOGOUT_LOCATION;
 env ERROR_PAGE_404;
 
 http {
-    include	  /etc/nginx/naxsi/*;
+    #include	  /etc/nginx/naxsi/*;
     include       mime.types;
     default_type  text/html;
 
@@ -222,7 +222,7 @@ http {
 
       #{{$service.metadata.name}}
       location {{.}} {
-        include /etc/nginx/naxsi.rules;
+        #include /etc/nginx/naxsi.rules;
         proxy_pass http://{{$service.spec.clusterIP}}:{{$port}};
       }
 
