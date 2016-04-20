@@ -19,6 +19,12 @@ app.post('*', function (req, res) {
       logger.warn(err)
       res.sendStatus(403)
     }else{
+      // remove unwanted keys
+      delete profile['issuer']
+      delete profile['sessionIndex']
+      delete profile['nameIDFormat']
+      delete profile['getAssertionXml']
+      
       logger.info(profile)
       res.json(profile)
     }
