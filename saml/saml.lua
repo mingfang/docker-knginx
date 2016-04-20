@@ -1,5 +1,4 @@
 local cjson = require("cjson")
-local xml = require("xml")
 local inspect = require("inspect")
 
 local ngx_var = ngx.var
@@ -15,7 +14,7 @@ function saml.checkAccess()
     local session = require "resty.session".open{ secret = secret }
 
     -- no session, redirect to idp
-    if not session.data.nameId then
+    if not session.data.nameID then
         local relay_state = ngx_var.scheme.."://"..ngx.req.get_headers().host..ngx_var.uri
         local redirect_url = saml_idp_url.."?RelayState="..relay_state
         -- ngx.log(ngx.ERR, "redirect to idp:"..redirect_url)
@@ -32,31 +31,23 @@ end
 function saml.acs()
     ngx.req.read_body()
     local args, err = ngx.req.get_post_args()
-    if not args then
-        ngx.log(ngx.ERR, "failed to get post args: ", err)
-        ngx.exit(400)
-    end
 
-    -- parse XML
-    local samlResponseXML = ngx.decode_base64(args.SAMLResponse)
-    local samlResponse = xml.load(samlResponseXML)
-    xml.removeNamespace(samlResponse, "urn:oasis:names:tc:SAML:2.0:protocol")
-    xml.removeNamespace(samlResponse, "urn:oasis:names:tc:SAML:2.0:assertion")
+    local res = ngx.location.capture("/saml/validatePostResponse", {method = ngx.HTTP_POST, body = ngx.var.request_body, always_forward_body = true})
+    -- ngx.log(ngx.INFO, "res status: ", res.status)
+    -- ngx.log(ngx.INFO, "res.headers: ", inspect(res))
+    if res.status ~= 200 then
+        ngx.log(ngx.INFO, "SAML Auth Failed")
+        ngx.exit(403)
+    end
 
     -- start session
     local session = require "resty.session".start{ secret = secret }
-    session.data.nameId = xml.find(samlResponse, "NameID")[1]
-    session.data.status = xml.find(samlResponse, "StatusCode").Value
 
     -- store assertions
-    local assertions = xml.find(samlResponse, "AttributeStatement")
-    if assertions then
-      for key, val in pairs(assertions) do
-          if type(val) == "table" then
-            -- todo: may need to decrypt
-            session.data[val.Name] = val[1][1]
-          end
-      end
+    local assertions = cjson.decode(res.body)
+    -- ngx.log(ngx.INFO, inspect(assertions))
+    for key, val in pairs(assertions) do
+        session.data[ngx.escape_uri(key)] = val
     end
 
     -- load external session data
@@ -69,13 +60,13 @@ function saml.acs()
         local res = ngx.location.capture(profileLocation)
         if res.status == 200 then
             local profile = cjson.decode(res.body)
-            -- ngx.log(ngx.ERR, inspect(profile))
+            -- ngx.log(ngx.INFO, inspect(profile))
             for key, val in pairs(profile) do
-                session.data[key] = val
+                session.data[ngx.escape_uri(key)] = val
             end
         else
             -- problem with profile, clean up and exit
-            ngx.log(ngx.ERR, "Error loading profile for: "..session.data.nameId.." status:"..res.status)
+            ngx.log(ngx.ERR, "Error loading profile for: "..session.data.nameID.." status:"..res.status)
             session:destroy()
             ngx.exit(500)
         end
@@ -83,7 +74,7 @@ function saml.acs()
 
     -- session is good
     session:save()
-    ngx.log(ngx.INFO, "login: "..session.data.nameId)
+    ngx.log(ngx.INFO, "login: "..session.data.nameID)
 
     -- redirect to RelayState
     local relayState = args.RelayState
@@ -97,8 +88,8 @@ end
 -- destroy session
 function saml.logout()
     local session = require "resty.session".open{ secret = secret }
-    if session.data.nameId then
-        ngx.log(ngx.INFO, "logout: "..session.data.nameId)
+    if session.data.nameID then
+        ngx.log(ngx.INFO, "logout: "..session.data.nameID)
     end
 
     if logoutLocation then

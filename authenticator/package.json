@@ -1,0 +1,17 @@
+{
+  "name": "passport",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "echo build",
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.15.0",
+    "config": "^1.20.1",
+    "express": "^4.13.4",
+    "fs": "0.0.2",
+    "js-yaml": "^3.6.0",
+    "log4js": "^0.6.35",
+    "passport-saml": "^0.15.0"
+  }
+}

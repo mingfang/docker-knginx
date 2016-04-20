@@ -1,0 +1,10 @@
+#!/bin/bash
+
+#sv start socklog-unix || exit 1
+
+source /etc/envvars
+
+cd /authenticator
+
+exec 2>&1
+exec npm start
