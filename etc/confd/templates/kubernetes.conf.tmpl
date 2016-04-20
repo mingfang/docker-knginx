@@ -209,6 +209,16 @@ http {
           return 418;
       	}
 
+      	#missing favicon
+      	location @missing_favicon {
+      	  access_log off;
+      	  return 204;
+      	}
+      	location = /favicon.ico {
+      	  access_log off;
+      	  try_files $uri @missing_favicon;
+      	}
+
     	  #pagespeed
         pagespeed {{or (getenv "PAGESPEED") "off"}};
         location ~ "^/pagespeed_static/" { }
@@ -220,8 +230,8 @@ http {
       	location ~ ^/pagespeed_admin { allow 127.0.0.1; deny all; }
       	location ~ ^/pagespeed_global_admin { allow 127.0.0.1; deny all; }
         location ~ "\.pagespeed\.([a-z]\.)?[a-z]{2}\.[^.]{10}\.[^.]+" {
-        add_header "" "";
-	}
+          add_header "" "";
+	      }
         pagespeed FileCachePath /var/ngx_pagespeed_cache;
 	      pagespeed EnableFilters rewrite_javascript,rewrite_css,remove_comments,extend_cache,collapse_whitespace,add_instrumentation;
 
