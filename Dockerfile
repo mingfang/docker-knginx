@@ -28,9 +28,9 @@ RUN wget -O - http://download.redis.io/releases/redis-3.0.7.tar.gz | tar zx && \
     cp redis.conf /etc/redis.conf && \
     rm -rf /redis-*
 
-RUN curl -L https://github.com/pagespeed/ngx_pagespeed/archive/release-1.11.33.0-beta.tar.gz | tar xz
+RUN curl -L https://github.com/pagespeed/ngx_pagespeed/archive/release-1.11.33.1-beta.tar.gz | tar xz
 RUN cd ngx_pagespeed* && \
-    curl https://dl.google.com/dl/page-speed/psol/1.11.33.0.tar.gz | tar xz
+    curl https://dl.google.com/dl/page-speed/psol/1.11.33.1.tar.gz | tar xz
 
 #OpenResty
 RUN wget -O - https://github.com/nbs-system/naxsi/archive/0.54.tar.gz | tar zx && \
@@ -54,7 +54,7 @@ RUN wget -O - https://github.com/nbs-system/naxsi/archive/0.54.tar.gz | tar zx &
       --with-threads \
       --with-stream \
       --with-http_stub_status_module \
-      --add-module=/ngx_pagespeed-release-1.11.33.0-beta && \
+      --add-module=/ngx_pagespeed-release-1.11.33.1-beta && \
 
     make -j4 && \
     make install && \
