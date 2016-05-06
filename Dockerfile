@@ -104,7 +104,7 @@ RUN mkdir -p /var/log/pagespeed && chmod 777 /var/log/pagespeed
 RUN mkdir -p /var/nginx/cache && chmod 777 /var/nginx/cache
 
 #Passport
-RUN wget -O - https://nodejs.org/dist/v5.10.1/node-v5.10.1-linux-x64.tar.gz | tar xz
+RUN wget -O - https://nodejs.org/dist/v6.1.0/node-v6.1.0-linux-x64.tar.gz | tar xz
 RUN mv node* node && \
     ln -s /node/bin/node /usr/local/bin/node && \
     ln -s /node/bin/npm /usr/local/bin/npm
