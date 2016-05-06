@@ -1,5 +1,5 @@
 #!/bin/bash
-source helper
+source $(dirname "${BASH_SOURCE[0]}")/helper
 
 if [ $REGISTRY ]; then
     sha=`git rev-parse HEAD||true`
