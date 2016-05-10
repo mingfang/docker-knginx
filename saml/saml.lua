@@ -1,7 +1,5 @@
-local cjson = require "cjson"
-local inspect = require "inspect"
-local resty_random = require "resty.random"
-local str = require "resty.string"
+local cjson = require("cjson")
+local inspect = require("inspect")
 
 local ngx_var = ngx.var
 local saml = {}
@@ -17,14 +15,7 @@ function saml.checkAccess()
 
     -- no session, redirect to idp
     if not session.data.nameID then
-        session.start()
-        local orginalURL = ngx_var.scheme.."://"..ngx.req.get_headers().host..ngx_var.uri
-        session.data.originalURL = orginalURL
-        local random = resty_random.bytes(16)
-        local relay_state = str.to_hex(random)
-        session.data.relay_state = relay_state
-        session:save()
-
+        local relay_state = ngx_var.scheme.."://"..ngx.req.get_headers().host..ngx_var.uri
         local redirect_url = saml_idp_url.."?RelayState="..relay_state
         -- ngx.log(ngx.ERR, "redirect to idp:"..redirect_url)
         return ngx.redirect(redirect_url)
@@ -38,28 +29,19 @@ end
 
 -- called by IdP after login, POST SAMLResponse and RelayState
 function saml.acs()
-    -- open session
-    local session, isValid = require "resty.session".open{ secret = secret }
-    if not isValid and not session.data.relay_state and not session.data.orginalURL then
-        session:destroy()
-        ngx.exit(403)
-    end
-
     ngx.req.read_body()
     local args, err = ngx.req.get_post_args()
-    if session.data.relay_state ~= args.RelayState then
-        session:destroy()
-        ngx.exit(403)
-    end
 
     local res = ngx.location.capture("/saml/validatePostResponse", {method = ngx.HTTP_POST, body = ngx.var.request_body, always_forward_body = true})
     -- ngx.log(ngx.INFO, "res status: ", res.status)
     -- ngx.log(ngx.INFO, "res.headers: ", inspect(res))
     if res.status ~= 200 then
         ngx.log(ngx.INFO, "SAML Auth Failed")
-        session:destroy()
         ngx.exit(403)
     end
+
+    -- start session
+    local session = require "resty.session".start{ secret = secret }
 
     -- store assertions
     local assertions = cjson.decode(res.body)
@@ -90,16 +72,14 @@ function saml.acs()
         end
     end
 
-    -- session is good, clear key fields to prevent attacks
-    local originalURL = session.data.originalURL
-    session.data.orginalURL = nil
-    session.data.relay_state = nil
+    -- session is good
     session:save()
     ngx.log(ngx.INFO, "login: "..session.data.nameID)
 
-    -- redirect to originalURL
-    if (originalURL ~= nill and originalURL ~= "") then
-      return ngx.redirect(originalURL)
+    -- redirect to RelayState
+    local relayState = args.RelayState
+    if (relayState ~= nill and relayState ~= "") then
+      return ngx.redirect(relayState)
     else
       return ngx.exit(200)
     end
