@@ -1,5 +1,4 @@
 saml:
-    acceptedClockSkewMs: -1,
     cert:
     
 port: 3000
