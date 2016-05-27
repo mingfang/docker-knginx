@@ -128,6 +128,8 @@ COPY saml/saml.lua /usr/local/openresty/lualib/
 COPY etc/naxsi.rules /etc/nginx/
 COPY etc/naxsi/naxsi_core.rules /etc/nginx/naxsi/
 
+COPY pagespeed.conf /etc/nginx/
+
 # Add runit services
 COPY sv /etc/service 
 ARG BUILD_INFO
