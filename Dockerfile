@@ -36,7 +36,7 @@ RUN cd ngx_pagespeed* && \
 #OpenResty
 RUN wget -O - https://github.com/openssl/openssl/archive/OpenSSL_1_0_2h.tar.gz | tar zx && \
     wget -O - https://github.com/nbs-system/naxsi/archive/0.54.tar.gz | tar zx && \
-    wget -O - https://openresty.org/download/openresty-1.9.7.4.tar.gz | tar zx && \
+    wget -O - https://openresty.org/download/openresty-1.9.15.1.tar.gz | tar zx && \
     cd /openssl* && \
     ./config && \
     make install && \
@@ -80,7 +80,7 @@ RUN wget -O - http://luarocks.org/releases/luarocks-2.3.0.tar.gz | tar zx && \
     ./configure \
       --prefix=/usr/local/openresty/luajit \
       --with-lua=/usr/local/openresty/luajit/ \
-      --lua-suffix=jit-2.1.0-beta1 \
+      --lua-suffix=jit-2.1.0-beta2 \
       --with-lua-include=/usr/local/openresty/luajit/include/luajit-2.1 && \
       make -j4 && \
       make install && \
