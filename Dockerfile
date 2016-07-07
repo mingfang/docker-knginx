@@ -15,7 +15,7 @@ RUN echo 'export > /etc/envvars' >> /root/.bashrc
 # Utilities
 RUN apt-get install -y vim less net-tools inetutils-ping wget curl git telnet nmap socat dnsutils netcat tree htop unzip sudo software-properties-common jq psmisc
 
-RUN apt-get install -y libreadline-dev libncurses5-dev libpcre3-dev libssl-dev perl make build-essential
+RUN apt-get install -y libreadline-dev libncurses5-dev libpcre3-dev zlib1g-dev perl make build-essential
 
 #Confd
 RUN wget -O /usr/local/bin/confd  https://github.com/kelseyhightower/confd/releases/download/v0.11.0/confd-0.11.0-linux-amd64 && \
@@ -34,9 +34,14 @@ RUN cd ngx_pagespeed* && \
     curl https://dl.google.com/dl/page-speed/psol/1.11.33.1.tar.gz | tar xz
 
 #OpenResty
-RUN wget -O - https://github.com/nbs-system/naxsi/archive/0.54.tar.gz | tar zx && \
+RUN wget -O - https://github.com/openssl/openssl/archive/OpenSSL_1_0_2h.tar.gz | tar zx && \
+    wget -O - https://github.com/nbs-system/naxsi/archive/0.54.tar.gz | tar zx && \
     wget -O - https://openresty.org/download/openresty-1.9.7.4.tar.gz | tar zx && \
-    cd openresty* && \
+    cd /openssl* && \
+    ./config && \
+    make install && \
+    mv apps/openssl /usr/bin/ && \
+    cd /openresty* && \
     ./configure \
       --add-module=../naxsi-0.54/naxsi_src/ \
       --with-http_v2_module \
@@ -55,12 +60,14 @@ RUN wget -O - https://github.com/nbs-system/naxsi/archive/0.54.tar.gz | tar zx &
       --with-threads \
       --with-stream \
       --with-http_stub_status_module \
+      --with-openssl=$(ls -d /openssl*) \
       --add-module=/ngx_pagespeed-release-1.11.33.1-beta && \
 
     make -j4 && \
     make install && \
     rm -rf /openresty* && \
-    rm -rf /naxsi*
+    rm -rf /naxsi* && \
+    rm -rf /openssl*
 
 RUN mkdir -p /etc/nginx && \
     mkdir -p /var/log/nginx && \
@@ -114,6 +121,12 @@ COPY authenticator /authenticator
 RUN cd /authenticator && \
     npm install && \
     npm run build
+
+#Letsencrypt
+RUN luarocks install lua-resty-http && \
+    luarocks install lua-resty-auto-ssl
+RUN mkdir -p /etc/resty-auto-ssl && \
+    chown nobody /etc/resty-auto-ssl
 
 COPY nginx.conf /etc/nginx/
 COPY etc/confd /etc/confd
