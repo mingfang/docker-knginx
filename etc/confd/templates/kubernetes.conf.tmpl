@@ -238,6 +238,9 @@ server {
       content_by_lua_block {
         auto_ssl:challenge_server()
       }
+      {{if (getenv "PAGESPEED") }}
+      pagespeed off;
+      {{end}}
     }
 
     # Dynamic handler for issuing or returning certs for SNI domains.
