@@ -137,11 +137,20 @@ http {
         server_name {{.server}};
 
       {{range .locations}}
-
       location {{.}} {
         proxy_pass http://{{$service.spec.clusterIP}}:{{$port}};
       }
+      {{end}}
 
+      {{range .paths}}
+      location {{.path}} {
+        {{range .directives}}
+        {{.}}
+        {{end}}
+        {{if not .no_proxy}}
+        proxy_pass http://{{$service.spec.clusterIP}}:{{$port}};
+        {{end}}
+      }
       {{end}}
     }
 
