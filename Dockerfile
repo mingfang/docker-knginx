@@ -61,6 +61,7 @@ RUN wget -O - https://github.com/openssl/openssl/archive/OpenSSL_1_0_2h.tar.gz |
       --with-stream \
       --with-http_stub_status_module \
       --with-openssl=$(ls -d /openssl*) \
+      --with-http_sub_module \
       --add-module=/ngx_pagespeed-release-1.11.33.2-beta && \
 
     make -j4 && \
