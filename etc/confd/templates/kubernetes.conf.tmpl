@@ -309,15 +309,26 @@ server {
     {{range .http}}
       {{if eq .server "default"}}
       {{$port := or .port $defaultPort.port}}
-      {{range .locations}}
-
       #{{$service.metadata.name}}
+
+      {{range .locations}}
       location {{.}} {
         #include /etc/nginx/naxsi.rules;
         proxy_pass http://{{$service.spec.clusterIP}}:{{$port}};
       }
-
       {{end}}
+
+      {{range .paths}}
+      location {{.path}} {
+        {{range .directives}}
+        {{.}}
+        {{end}}
+        {{if not .no_proxy}}
+        proxy_pass http://{{$service.spec.clusterIP}}:{{$port}};
+        {{end}}
+      }
+      {{end}}
+
       {{end}}
     {{end}}
     {{end}}
