@@ -117,6 +117,26 @@ http {
 
 # Annotation Env: {{getenv "ANNOTATION"}} default: {{(or (getenv "ANNOTATION") "nginx")}}
 
+# Upstreams
+
+  # Must be off since next server in upstream may be an entirely different service
+  proxy_next_upstream off;
+
+{{range $serviceJson := getvs "/registry/services/specs/default/*"}}
+  {{$service := json $serviceJson}}
+  {{if not $service.metadata.labels.canary}}
+  {{range $service.spec.ports}}
+  upstream {{$service.metadata.name}}_{{.port}} {
+    ip_hash;
+    server {{$service.metadata.name}}:{{.port}} weight={{(or $service.metadata.labels.primary_pct 100)}};
+    {{if $service.metadata.labels.canary_pct }}
+    server {{$service.metadata.name}}-canary:{{.port}} weight={{$service.metadata.labels.canary_pct}};
+    {{end}}
+  }
+  {{end}}
+  {{end}}
+{{end}}
+
 # virtual servers
 
 {{range $serviceJson := getvs "/registry/services/specs/default/*"}}
@@ -138,7 +158,7 @@ http {
 
       {{range .locations}}
       location {{.}} {
-        proxy_pass http://{{$service.spec.clusterIP}}:{{$port}};
+        proxy_pass http://{{$service.metadata.name}}_{{$port}};
       }
       {{end}}
 
@@ -148,7 +168,7 @@ http {
         {{.}}
         {{end}}
         {{if not .no_proxy}}
-        proxy_pass http://{{$service.spec.clusterIP}}:{{$port}};
+        proxy_pass http://{{$service.metadata.name}}_{{$port}};
         {{end}}
       }
       {{end}}
@@ -314,7 +334,7 @@ server {
       {{range .locations}}
       location {{.}} {
         #include /etc/nginx/naxsi.rules;
-        proxy_pass http://{{$service.spec.clusterIP}}:{{$port}};
+        proxy_pass http://{{$service.metadata.name}}_{{$port}};
       }
       {{end}}
 
@@ -324,7 +344,7 @@ server {
         {{.}}
         {{end}}
         {{if not .no_proxy}}
-        proxy_pass http://{{$service.spec.clusterIP}}:{{$port}};
+        proxy_pass http://{{$service.metadata.name}}_{{$port}};
         {{end}}
       }
       {{end}}
