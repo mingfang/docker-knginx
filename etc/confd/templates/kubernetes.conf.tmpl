@@ -17,6 +17,7 @@ env ERROR_PAGE_404;
 env HTTPS_ONLY;
 env PAGESPEED;
 env LETSENCRYPT_DOMAINS;
+env NO_SSI;
 
 http {
     #include	  /etc/nginx/naxsi/*;
@@ -90,9 +91,11 @@ http {
     proxy_set_header Connection $connection_upgrade;
     proxy_cache_bypass $http_upgrade;
 
+    {{if not (getenv "NO_SSI") }}
     ssi on;
     #compresson causes SSI problems, disable it
     proxy_set_header Accept-Encoding "";
+    {{end}}
 
     #SSL
     ssl_dhparam /etc/ssl/dhparams.pem;
