@@ -311,7 +311,7 @@ server {
       	  access_log off;
       	  return 204;
       	}
-      	location = /favicon.ico {
+      	location /favicon.ico {
       	  access_log off;
       	  try_files $uri @missing_favicon;
       	}
