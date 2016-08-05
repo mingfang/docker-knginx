@@ -8,14 +8,14 @@ RUN echo "export PS1='\e[1;31m\]\u@\h:\w\\$\[\e[0m\] '" >> /root/.bashrc
 RUN apt-get update
 
 # Runit
-RUN apt-get install -y runit 
+RUN apt-get install -y --no-install-recommends runit 
 CMD export > /etc/envvars && /usr/sbin/runsvdir-start
 RUN echo 'export > /etc/envvars' >> /root/.bashrc
 
 # Utilities
-RUN apt-get install -y vim less net-tools inetutils-ping wget curl git telnet nmap socat dnsutils netcat tree htop unzip sudo software-properties-common jq psmisc
+RUN apt-get install -y --no-install-recommends vim less net-tools inetutils-ping wget curl git telnet nmap socat dnsutils netcat tree htop unzip sudo software-properties-common jq psmisc iproute
 
-RUN apt-get install -y libreadline-dev libncurses5-dev libpcre3-dev zlib1g-dev perl make build-essential
+RUN apt-get install -y --no-install-recommends libreadline-dev libncurses5-dev libpcre3-dev zlib1g-dev perl make build-essential
 
 #Confd
 RUN wget -O /usr/local/bin/confd  https://github.com/kelseyhightower/confd/releases/download/v0.11.0/confd-0.11.0-linux-amd64 && \
@@ -29,12 +29,12 @@ RUN wget -O - http://download.redis.io/releases/redis-3.0.7.tar.gz | tar zx && \
     cp redis.conf /etc/redis.conf && \
     rm -rf /redis-*
 
-RUN curl -L https://github.com/pagespeed/ngx_pagespeed/archive/release-1.11.33.2-beta.tar.gz | tar xz
-RUN cd ngx_pagespeed* && \
-    curl https://dl.google.com/dl/page-speed/psol/1.11.33.2.tar.gz | tar xz
-
 #OpenResty
-RUN wget -O - https://github.com/openssl/openssl/archive/OpenSSL_1_0_2h.tar.gz | tar zx && \
+RUN wget -O - https://github.com/pagespeed/ngx_pagespeed/archive/release-1.11.33.2-beta.tar.gz | tar xz && \
+    cd ngx_pagespeed* && \
+    wget -O - https://dl.google.com/dl/page-speed/psol/1.11.33.2.tar.gz | tar xz && \
+    cd / && \
+    wget -O - https://github.com/openssl/openssl/archive/OpenSSL_1_0_2h.tar.gz | tar zx && \
     wget -O - https://github.com/nbs-system/naxsi/archive/0.54.tar.gz | tar zx && \
     wget -O - https://openresty.org/download/openresty-1.9.15.1.tar.gz | tar zx && \
     cd /openssl* && \
@@ -68,7 +68,8 @@ RUN wget -O - https://github.com/openssl/openssl/archive/OpenSSL_1_0_2h.tar.gz |
     make install && \
     rm -rf /openresty* && \
     rm -rf /naxsi* && \
-    rm -rf /openssl*
+    rm -rf /openssl* && \
+    rm -rf /ngx_pagespeed*
 
 RUN mkdir -p /etc/nginx && \
     mkdir -p /var/log/nginx && \
