@@ -30,9 +30,9 @@ RUN wget -O - http://download.redis.io/releases/redis-3.0.7.tar.gz | tar zx && \
     rm -rf /redis-*
 
 #OpenResty
-RUN wget -O - https://github.com/pagespeed/ngx_pagespeed/archive/release-1.11.33.2-beta.tar.gz | tar xz && \
+RUN wget -O - https://github.com/pagespeed/ngx_pagespeed/archive/release-1.11.33.3-beta.tar.gz | tar xz && \
     cd ngx_pagespeed* && \
-    wget -O - https://dl.google.com/dl/page-speed/psol/1.11.33.2.tar.gz | tar xz && \
+    wget -O - https://dl.google.com/dl/page-speed/psol/1.11.33.3.tar.gz | tar xz && \
     cd / && \
     wget -O - https://github.com/openssl/openssl/archive/OpenSSL_1_0_2h.tar.gz | tar zx && \
     wget -O - https://github.com/nbs-system/naxsi/archive/0.54.tar.gz | tar zx && \
@@ -62,7 +62,7 @@ RUN wget -O - https://github.com/pagespeed/ngx_pagespeed/archive/release-1.11.33
       --with-http_stub_status_module \
       --with-openssl=$(ls -d /openssl*) \
       --with-http_sub_module \
-      --add-module=/ngx_pagespeed-release-1.11.33.2-beta && \
+      --add-module=/ngx_pagespeed-release-1.11.33.3-beta && \
 
     make -j4 && \
     make install && \
