@@ -36,7 +36,7 @@ RUN wget -O - https://github.com/pagespeed/ngx_pagespeed/archive/release-1.11.33
     cd / && \
     wget -O - https://github.com/openssl/openssl/archive/OpenSSL_1_0_2h.tar.gz | tar zx && \
     wget -O - https://github.com/nbs-system/naxsi/archive/0.54.tar.gz | tar zx && \
-    wget -O - https://openresty.org/download/openresty-1.9.15.1.tar.gz | tar zx && \
+    wget -O - https://openresty.org/download/openresty-1.11.2.1.tar.gz | tar zx && \
     cd /openssl* && \
     ./config && \
     make install && \
