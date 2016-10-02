@@ -2,7 +2,8 @@
 src = "kubernetes.conf.tmpl"
 dest = "/etc/nginx/nginx.conf"
 keys = [
-    "/registry/services/specs/default/"
+    "/registry/services/specs/default/",
+    "/registry/services/endpoints/default"
 ]
 
 check_cmd = "nginx -t -c {{.src}}"

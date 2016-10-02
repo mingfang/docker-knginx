@@ -122,21 +122,23 @@ http {
 
 # Upstreams
 
-  # Must be off since next server in upstream may be an entirely different service
-  proxy_next_upstream off;
-
 {{range $serviceJson := getvs "/registry/services/specs/default/*"}}
   {{$service := json $serviceJson}}
-  {{if not $service.metadata.labels.canary}}
-  {{range $service.spec.ports}}
-  upstream {{$service.metadata.name}}_{{.port}} {
-    ip_hash;
-    server {{$service.metadata.name}}:{{.port}} weight={{(or $service.metadata.labels.primary_pct 100)}};
-    {{if $service.metadata.labels.canary_pct }}
-    server {{$service.metadata.name}}-canary:{{.port}} weight={{$service.metadata.labels.canary_pct}};
-    {{end}}
+  {{$endpointPath := printf "/registry/services/endpoints/default/%s" $service.metadata.name}}
+  {{$endpoint := json (getv $endpointPath)}}
+  {{if $endpoint.subsets}}
+    {{if (index $endpoint.subsets 0).addresses}}
+    {{range $port := $service.spec.ports}}
+  upstream {{$service.metadata.name}}_{{$port.port}} {
+    least_conn;
+      {{range $subset := $endpoint.subsets}}
+        {{range $subset.addresses}}
+    server {{.ip}}:{{$port.port}} weight=1;
+        {{end}}
+      {{end}}
   }
-  {{end}}
+    {{end}}
+    {{end}}
   {{end}}
 {{end}}
 
@@ -144,6 +146,10 @@ http {
 
 {{range $serviceJson := getvs "/registry/services/specs/default/*"}}
   {{$service := json $serviceJson}}
+  {{$endpointPath := printf "/registry/services/endpoints/default/%s" $service.metadata.name}}
+  {{$endpoint := json (getv $endpointPath)}}
+  {{if $endpoint.subsets}}
+  {{if (index $endpoint.subsets 0).addresses}}
   {{$defaultPort := index $service.spec.ports 0}}
   {{if $service.metadata.annotations}}
     {{$annotation := (index $service.metadata.annotations (or (getenv "ANNOTATION") "nginx"))}}
@@ -181,6 +187,8 @@ http {
     {{end}}
     {{end}}
     {{end}}
+  {{end}}
+  {{end}}
   {{end}}
   {{end}}
 {{end}}
@@ -323,6 +331,10 @@ server {
 
 {{range $serviceJson := getvs "/registry/services/specs/default/*"}}
   {{$service := json $serviceJson}}
+  {{$endpointPath := printf "/registry/services/endpoints/default/%s" $service.metadata.name}}
+  {{$endpoint := json (getv $endpointPath)}}
+  {{if $endpoint.subsets}}
+  {{if (index $endpoint.subsets 0).addresses}}
   {{$defaultPort := index $service.spec.ports 0}}
   {{if $service.metadata.annotations}}
     {{$annotation := (index $service.metadata.annotations (or (getenv "ANNOTATION") "nginx"))}}
@@ -356,6 +368,8 @@ server {
     {{end}}
     {{end}}
     {{end}}
+  {{end}}
+  {{end}}
   {{end}}
   {{end}}
 {{end}}
