@@ -156,7 +156,7 @@ http {
     #{{$service.metadata.name}} {{$annotation}}
     server {
         listen 80;
-        listen 443 ssl;
+        listen 443 http2 deferred ssl;
         server_name {{.server}};
 
       {{range .locations}}
@@ -243,7 +243,7 @@ server {
 
     #https only
     server {
-        listen 443 default_server deferred ssl;
+        listen 443 default_server http2 deferred ssl;
 
         #Enable SAML
         include saml.conf;
@@ -261,7 +261,7 @@ server {
 {{else}}
     server {
         listen 80 default_server;
-        listen 443 default_server deferred ssl;
+        listen 443 default_server http2 deferred ssl;
 {{end}}
 
 {{if $LETSENCRYPT_DOMAINS}}
