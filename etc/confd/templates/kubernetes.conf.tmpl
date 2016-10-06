@@ -131,6 +131,8 @@ http {
     {{range $port := $service.spec.ports}}
   upstream {{$service.metadata.name}}_{{$port.port}} {
     least_conn;
+    keepalive 10;
+
       {{range $subset := $endpoint.subsets}}
         {{range $subset.addresses}}
     server {{.ip}}:{{$port.port}} weight=1;
