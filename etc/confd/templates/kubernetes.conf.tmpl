@@ -117,7 +117,6 @@ http {
     proxy_set_header X-Tracer $remote_addr-$connection-$connection_requests;
     proxy_set_header X-B3-TraceId $remote_addr-$connection-$connection_requests;
 
-
 # Annotation Env: {{getenv "ANNOTATION"}} default: {{(or (getenv "ANNOTATION") "nginx")}}
 
 # Upstreams
@@ -164,7 +163,7 @@ http {
     #{{$service.metadata.name}} {{$annotation}}
     server {
         listen 80;
-        listen 443 http2 deferred ssl;
+        listen 443 ssl;
         server_name {{.server}};
 
       {{range .locations}}

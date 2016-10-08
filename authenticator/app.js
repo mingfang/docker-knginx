@@ -13,7 +13,7 @@ var app = express();
 app.use(bodyParser.urlencoded({extended: false}));
 
 app.post('*', function (req, res) {
-  logger.info(req.url)
+  logger.info(req.body)
   saml.validatePostResponse(req.body, function(err, profile){
     if(err){
       logger.warn(err)

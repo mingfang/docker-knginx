@@ -94,6 +94,7 @@ ENV PATH=/usr/local/openresty/luajit/bin:$PATH
 #Lua Libraries
 RUN luarocks install lua-resty-session
 RUN luarocks install inspect
+RUN luarocks install lua-resty-http
 
 #ssl
 RUN openssl dhparam -out /etc/ssl/dhparams.pem 2048

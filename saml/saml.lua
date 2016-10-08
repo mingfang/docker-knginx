@@ -30,9 +30,20 @@ end
 -- called by IdP after login, POST SAMLResponse and RelayState
 function saml.acs()
     ngx.req.read_body()
-    local args, err = ngx.req.get_post_args()
+    ngx.log(ngx.INFO, ngx.var.request_body)
 
-    local res = ngx.location.capture("/saml/validatePostResponse", {method = ngx.HTTP_POST, body = ngx.var.request_body, always_forward_body = true})
+    local http = require "resty.http"
+    local httpc = http.new()
+
+    local res, err = httpc:request_uri("http://127.0.0.1:3000/saml/validatePostResponse",{
+       method = "POST",
+       body = ngx.var.request_body,
+       headers = {
+         ["Content-Type"] = "application/x-www-form-urlencoded"
+       }
+    })
+    httpc:set_keepalive()
+
     -- ngx.log(ngx.INFO, "res status: ", res.status)
     -- ngx.log(ngx.INFO, "res.headers: ", inspect(res))
     if res.status ~= 200 then
@@ -77,6 +88,7 @@ function saml.acs()
     ngx.log(ngx.INFO, "login: "..session.data.nameID)
 
     -- redirect to RelayState
+    local args, err = ngx.req.get_post_args()
     local relayState = args.RelayState
     if (relayState ~= nill and relayState ~= "") then
       return ngx.redirect(relayState)
