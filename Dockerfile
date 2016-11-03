@@ -106,7 +106,7 @@ RUN mkdir -p /etc/nginx/ssl && \
 # Force triggering ERROR_PAGE_404 page
 RUN rm -rf /usr/local/openresty/nginx/html
 
-RUN mkdir -p /var/ngx_pagespeed_cache && chmod 777 /var/ngx_pagespeed_cache
+RUN mkdir -p /var/cache/nginx/pagespeed && chmod 777 /var/cache/nginx/pagespeed
 RUN mkdir -p /var/log/pagespeed && chmod 777 /var/log/pagespeed
 RUN mkdir -p /var/nginx/cache && chmod 777 /var/nginx/cache
 
