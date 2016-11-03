@@ -20,7 +20,6 @@ env LETSENCRYPT_DOMAINS;
 env NO_SSI;
 
 http {
-    #include	  /etc/nginx/naxsi/*;
     include       mime.types;
     default_type  text/html;
 
@@ -342,11 +341,6 @@ server {
           return 200;
         }
 
-      	#naxsi
-      	location /RequestDenied {
-          return 418;
-      	}
-
       	#missing favicon
       	location @missing_favicon {
       	  access_log off;
@@ -381,7 +375,6 @@ server {
 
       {{range .locations}}
       location {{.}} {
-        #include /etc/nginx/naxsi.rules;
         proxy_pass http://{{$service.metadata.name}}_{{$port}};
       }
       {{end}}

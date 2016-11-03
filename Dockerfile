@@ -35,7 +35,6 @@ RUN wget -O - https://github.com/pagespeed/ngx_pagespeed/archive/release-1.11.33
     wget -O - https://dl.google.com/dl/page-speed/psol/1.11.33.3.tar.gz | tar xz && \
     cd / && \
     wget -O - https://github.com/openssl/openssl/archive/OpenSSL_1_0_2j.tar.gz | tar zx && \
-    wget -O - https://github.com/nbs-system/naxsi/archive/0.54.tar.gz | tar zx && \
     wget -O - https://openresty.org/download/openresty-1.11.2.1.tar.gz | tar zx && \
     cd /openssl* && \
     ./config && \
@@ -43,7 +42,6 @@ RUN wget -O - https://github.com/pagespeed/ngx_pagespeed/archive/release-1.11.33
     mv apps/openssl /usr/bin/ && \
     cd /openresty* && \
     ./configure \
-      --add-module=../naxsi-0.54/naxsi_src/ \
       --with-http_v2_module \
       --with-pcre-jit \
       --with-ipv6 \
@@ -67,7 +65,6 @@ RUN wget -O - https://github.com/pagespeed/ngx_pagespeed/archive/release-1.11.33
     make -j4 && \
     make install && \
     rm -rf /openresty* && \
-    rm -rf /naxsi* && \
     rm -rf /openssl* && \
     rm -rf /ngx_pagespeed*
 
@@ -139,10 +136,6 @@ COPY redis.conf /etc/
 #SAML
 COPY saml/saml.conf /etc/nginx/
 COPY saml/saml.lua /usr/local/openresty/lualib/
-
-#NAXSI
-COPY etc/naxsi.rules /etc/nginx/
-COPY etc/naxsi/naxsi_core.rules /etc/nginx/naxsi/
 
 COPY pagespeed.conf /etc/nginx/
 
