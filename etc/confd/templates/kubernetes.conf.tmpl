@@ -120,9 +120,9 @@ http {
 
 # Upstreams
 
-{{range $serviceJson := getvs "/registry/services/specs/default/*"}}
+{{range $serviceJson := getvs "/specs/default/*"}}
   {{$service := json $serviceJson}}
-  {{$endpointPath := printf "/registry/services/endpoints/default/%s" $service.metadata.name}}
+  {{$endpointPath := printf "/endpoints/default/%s" $service.metadata.name}}
   {{$endpoint := json (getv $endpointPath)}}
   {{if $endpoint.subsets}}
     {{if (index $endpoint.subsets 0).addresses}}
@@ -144,9 +144,9 @@ http {
 
 # virtual servers
 
-{{range $serviceJson := getvs "/registry/services/specs/default/*"}}
+{{range $serviceJson := getvs "/specs/default/*"}}
   {{$service := json $serviceJson}}
-  {{$endpointPath := printf "/registry/services/endpoints/default/%s" $service.metadata.name}}
+  {{$endpointPath := printf "/endpoints/default/%s" $service.metadata.name}}
   {{$endpoint := json (getv $endpointPath)}}
   {{if $endpoint.subsets}}
   {{if (index $endpoint.subsets 0).addresses}}
@@ -356,9 +356,9 @@ server {
         include /etc/nginx/pagespeed.conf;
         {{end}}
 
-{{range $serviceJson := getvs "/registry/services/specs/default/*"}}
+{{range $serviceJson := getvs "/specs/default/*"}}
   {{$service := json $serviceJson}}
-  {{$endpointPath := printf "/registry/services/endpoints/default/%s" $service.metadata.name}}
+  {{$endpointPath := printf "/endpoints/default/%s" $service.metadata.name}}
   {{$endpoint := json (getv $endpointPath)}}
   {{if $endpoint.subsets}}
   {{if (index $endpoint.subsets 0).addresses}}
@@ -405,7 +405,7 @@ server {
 
 stream{
 
-{{range $serviceJson := getvs "/registry/services/specs/default/*"}}
+{{range $serviceJson := getvs "/specs/default/*"}}
   {{$service := json $serviceJson}}
   {{if $service.metadata.annotations}}
     {{$annotation := (index $service.metadata.annotations (or (getenv "ANNOTATION") "nginx"))}}
