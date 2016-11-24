@@ -321,13 +321,25 @@ server {
     }
 {{end}}
 
+{{if or (getenv "ERROR_PAGE_404") (getenv "ERROR_PAGE_500")}}
+        proxy_intercept_errors on;
+{{end}}
+
 {{$ERROR_PAGE_404 := getenv "ERROR_PAGE_404"}}
 # ERROR_PAGE_404 = {{$ERROR_PAGE_404}}
 {{if $ERROR_PAGE_404}}
-        error_page 404 /custom_404.html;
-        location = /custom_404.html {
-          internal;
-        	return 302 {{$ERROR_PAGE_404}};
+        error_page 404 /error_page_404;
+        location = /error_page_404 {
+          proxy_pass {{$ERROR_PAGE_404}};
+        }
+{{end}}
+
+{{$ERROR_PAGE_500 := getenv "ERROR_PAGE_500"}}
+# ERROR_PAGE_500 = {{$ERROR_PAGE_500}}
+{{if $ERROR_PAGE_500}}
+        error_page 500 /error_page_500;
+        location = /error_page_500 {
+          proxy_pass {{$ERROR_PAGE_500}};
         }
 {{end}}
 
