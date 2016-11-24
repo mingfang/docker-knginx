@@ -1,19 +1,20 @@
-FROM ubuntu:14.04
-  
+FROM ubuntu:16.04
+
 ENV DEBIAN_FRONTEND=noninteractive \
     LANG=en_US.UTF-8 \
     TERM=xterm
 RUN locale-gen en_US en_US.UTF-8
 RUN echo "export PS1='\e[1;31m\]\u@\h:\w\\$\[\e[0m\] '" >> /root/.bashrc
+RUN echo "export PS1='\e[1;31m\]\u@\h:\w\\$\[\e[0m\] '" >> /etc/bash.bashrc
 RUN apt-get update
 
 # Runit
-RUN apt-get install -y --no-install-recommends runit 
+RUN apt-get install -y --no-install-recommends runit
 CMD export > /etc/envvars && /usr/sbin/runsvdir-start
 RUN echo 'export > /etc/envvars' >> /root/.bashrc
 
 # Utilities
-RUN apt-get install -y --no-install-recommends vim less net-tools inetutils-ping wget curl git telnet nmap socat dnsutils netcat tree htop unzip sudo software-properties-common jq psmisc iproute
+RUN apt-get install -y --no-install-recommends vim less net-tools inetutils-ping wget curl git telnet nmap socat dnsutils netcat tree htop unzip sudo software-properties-common jq psmisc iproute python ssh
 
 RUN apt-get install -y --no-install-recommends libreadline-dev libncurses5-dev libpcre3-dev zlib1g-dev perl make build-essential
 
@@ -30,12 +31,12 @@ RUN wget -O - http://download.redis.io/releases/redis-3.0.7.tar.gz | tar zx && \
     rm -rf /redis-*
 
 #OpenResty
-RUN wget -O - https://github.com/pagespeed/ngx_pagespeed/archive/release-1.11.33.3-beta.tar.gz | tar xz && \
+RUN wget -O - https://github.com/pagespeed/ngx_pagespeed/archive/release-1.11.33.4-beta.tar.gz | tar xz && \
     cd ngx_pagespeed* && \
-    wget -O - https://dl.google.com/dl/page-speed/psol/1.11.33.3.tar.gz | tar xz && \
+    wget -O - https://dl.google.com/dl/page-speed/psol/1.11.33.4.tar.gz | tar xz && \
     cd / && \
     wget -O - https://github.com/openssl/openssl/archive/OpenSSL_1_0_2j.tar.gz | tar zx && \
-    wget -O - https://openresty.org/download/openresty-1.11.2.1.tar.gz | tar zx && \
+    wget -O - https://openresty.org/download/openresty-1.11.2.2.tar.gz | tar zx && \
     cd /openssl* && \
     ./config && \
     make install && \
@@ -60,7 +61,7 @@ RUN wget -O - https://github.com/pagespeed/ngx_pagespeed/archive/release-1.11.33
       --with-http_stub_status_module \
       --with-openssl=$(ls -d /openssl*) \
       --with-http_sub_module \
-      --add-module=/ngx_pagespeed-release-1.11.33.3-beta && \
+      --add-module=/ngx_pagespeed-release-1.11.33.4-beta && \
 
     make -j4 && \
     make install && \
