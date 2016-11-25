@@ -133,7 +133,7 @@ http {
 
       {{range $subset := $endpoint.subsets}}
         {{range $subset.addresses}}
-    server {{.ip}}:{{$port.port}} weight=1;
+    server {{.ip}}:{{$port.targetPort}} weight=1;
         {{end}}
       {{end}}
   }
