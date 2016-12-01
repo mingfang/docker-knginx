@@ -75,6 +75,11 @@ function saml.acs()
             for key, val in pairs(profile) do
                 session.data[ngx.escape_uri(key)] = val
             end
+            -- set cookie if any
+            if res.header['Set-Cookie'] then
+               ngx.header['Set-Cookie'] = res.header['Set-Cookie']
+               ngx.log(ngx.INFO, session.data.nameID..": Set-Cookie: "..res.header['Set-Cookie'])
+            end
         else
             -- problem with profile, clean up and exit
             ngx.log(ngx.ERR, "Error loading profile for: "..session.data.nameID.." status:"..res.status)
