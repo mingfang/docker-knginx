@@ -75,7 +75,7 @@ RUN mkdir -p /etc/nginx && \
     mkdir -p /var/cache/nginx/proxy_temp
 
 #LuaRocks
-RUN wget -O - http://luarocks.org/releases/luarocks-2.3.0.tar.gz | tar zx && \
+RUN wget -O - http://luarocks.org/releases/luarocks-2.4.2.tar.gz | tar zx && \
     cd luarocks-* && \
     ./configure \
       --prefix=/usr/local/openresty/luajit \
@@ -93,6 +93,7 @@ ENV PATH=/usr/local/openresty/luajit/bin:$PATH
 RUN luarocks install lua-resty-session
 RUN luarocks install inspect
 RUN luarocks install lua-resty-http
+RUN luarocks install nginx-lua-prometheus
 
 #ssl
 RUN openssl dhparam -out /etc/ssl/dhparams.pem 2048
