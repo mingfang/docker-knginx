@@ -84,7 +84,7 @@ function saml.acs()
             -- problem with profile, clean up and exit
             ngx.log(ngx.ERR, "Error loading profile for: "..session.data.nameID.." status:"..res.status)
             session:destroy()
-            ngx.exit(500)
+            ngx.exit(403)
         end
     end
 
