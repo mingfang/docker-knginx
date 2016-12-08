@@ -42,7 +42,7 @@ RUN wget -O - https://github.com/pagespeed/ngx_pagespeed/archive/release-1.11.33
     make install && \
     mv apps/openssl /usr/bin/ && \
     cd /openresty* && \
-    ./configure \
+    ./configure -j4 \
       --with-http_v2_module \
       --with-pcre-jit \
       --with-ipv6 \
@@ -75,7 +75,7 @@ RUN mkdir -p /etc/nginx && \
     mkdir -p /var/cache/nginx/proxy_temp
 
 #LuaRocks
-RUN wget -O - http://luarocks.org/releases/luarocks-2.4.2.tar.gz | tar zx && \
+RUN wget -O - http://luarocks.org/releases/luarocks-2.3.0.tar.gz | tar zx && \
     cd luarocks-* && \
     ./configure \
       --prefix=/usr/local/openresty/luajit \
