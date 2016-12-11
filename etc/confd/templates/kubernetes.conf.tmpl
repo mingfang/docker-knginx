@@ -172,7 +172,12 @@ http {
 
     #log prometheus metrics
     log_by_lua '
-      metric_latency:observe(ngx.now() - ngx.req.start_time(), {ngx.var.host, ngx.var.uri, ngx.var.status})
+      local m, err = ngx.re.match(ngx.var.uri, "^/[^/]+/[^/]*")
+      if m then
+        metric_latency:observe(ngx.now() - ngx.req.start_time(), {ngx.var.host, m[0], ngx.var.status})
+      else
+        metric_latency:observe(ngx.now() - ngx.req.start_time(), {ngx.var.host, ngx.var.uri, ngx.var.status})
+      end
     ';
 
     #called by prometheus
