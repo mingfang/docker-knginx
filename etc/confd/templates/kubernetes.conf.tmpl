@@ -14,6 +14,8 @@ env SESSION_SECRET;
 env PROFILE_LOCATION;
 env LOGOUT_LOCATION;
 env ERROR_PAGE_404;
+env ERROR_PAGE_500;
+env ERROR_PAGE_503;
 env HTTPS_ONLY;
 env PAGESPEED;
 env LETSENCRYPT_DOMAINS;
@@ -354,7 +356,7 @@ server {
     }
 {{end}}
 
-{{if or (getenv "ERROR_PAGE_404") (getenv "ERROR_PAGE_500")}}
+{{if or (or (getenv "ERROR_PAGE_404") (getenv "ERROR_PAGE_500")) (getenv "ERROR_PAGE_503")}}
         proxy_intercept_errors on;
 {{end}}
 
@@ -373,6 +375,15 @@ server {
         error_page 500 /error_page_500;
         location = /error_page_500 {
           proxy_pass {{$ERROR_PAGE_500}};
+        }
+{{end}}
+
+{{$ERROR_PAGE_503 := getenv "ERROR_PAGE_503"}}
+# ERROR_PAGE_503 = {{$ERROR_PAGE_503}}
+{{if $ERROR_PAGE_503}}
+        error_page 503 /error_page_503;
+        location = /error_page_503 {
+          proxy_pass {{$ERROR_PAGE_503}};
         }
 {{end}}
 
