@@ -188,6 +188,7 @@ http {
     server {
       listen 9102;
       location /metrics {
+        access_log off;
         content_by_lua 'prometheus:collect()';
       }
     }
