@@ -29,7 +29,7 @@ http {
     log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
                       '$status $body_bytes_sent "$http_referer" '
                       '"$http_user_agent" "$http_x_forwarded_for" '
-                      '[$upstream_response_time/$request_time ms] $upstream_addr $upstream_status $request_id';
+                      '[$upstream_response_time / $request_time secs] $upstream_addr $upstream_status $request_id';
 
     access_log  /var/log/nginx/access.log  main;
 
@@ -74,7 +74,6 @@ http {
     proxy_set_header        Host            $host;
     proxy_set_header        X-Real-IP       $remote_addr;
     proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header        X-Orignal-Request-Uri $request_uri;
     proxy_set_header        X-Request-ID $request_id;
     add_header              X-Request-ID $request_id;
 
@@ -379,6 +378,8 @@ server {
 {{end}}
 
 {{if or (or (getenv "ERROR_PAGE_404") (getenv "ERROR_PAGE_500")) (getenv "ERROR_PAGE_503")}}
+        set $original_request_uri $request_uri;
+        set $original_request_id $request_id;
         proxy_intercept_errors on;
 {{end}}
 
@@ -387,6 +388,8 @@ server {
 {{if $ERROR_PAGE_404}}
         error_page 404 /error_page_404;
         location = /error_page_404 {
+          proxy_set_header X-Orignal-Request-Uri $original_request_uri;
+          proxy_set_header X-Orignal-Request-ID $original_request_id;
           proxy_pass {{$ERROR_PAGE_404}};
         }
 {{end}}
@@ -396,6 +399,8 @@ server {
 {{if $ERROR_PAGE_500}}
         error_page 500 /error_page_500;
         location = /error_page_500 {
+          proxy_set_header X-Orignal-Request-Uri $original_request_uri;
+          proxy_set_header X-Orignal-Request-ID $original_request_id;
           proxy_pass {{$ERROR_PAGE_500}};
         }
 {{end}}
@@ -405,6 +410,8 @@ server {
 {{if $ERROR_PAGE_503}}
         error_page 503 /error_page_503;
         location = /error_page_503 {
+          proxy_set_header X-Orignal-Request-Uri $original_request_uri;
+          proxy_set_header X-Orignal-Request-ID $original_request_id;
           proxy_pass {{$ERROR_PAGE_503}};
         }
 {{end}}
