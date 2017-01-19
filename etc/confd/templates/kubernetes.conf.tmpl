@@ -205,7 +205,7 @@ http {
     {{if (index $endpoint.subsets 0).addresses}}
     {{range $port := $service.spec.ports}}
   upstream {{$service.metadata.name}}_{{$port.port}} {
-    least_conn;
+    ip_hash;
     keepalive 10;
 
       {{range $subset := $endpoint.subsets}}
