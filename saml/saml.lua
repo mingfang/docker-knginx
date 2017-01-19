@@ -15,7 +15,7 @@ function saml.checkAccess()
 
     -- no session, redirect to idp
     if not session.data.nameID then
-        local relay_state = ngx_var.scheme.."://"..ngx.req.get_headers().host..ngx_var.uri
+        local relay_state = ngx_var.scheme.."://"..ngx.req.get_headers().host..ngx_var.request_uri
         local redirect_url = saml_idp_url.."?RelayState="..relay_state
         -- ngx.log(ngx.ERR, "redirect to idp:"..redirect_url)
         return ngx.redirect(redirect_url)
