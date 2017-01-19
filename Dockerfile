@@ -61,6 +61,7 @@ RUN wget -O - https://github.com/pagespeed/ngx_pagespeed/archive/release-1.11.33
       --with-http_stub_status_module \
       --with-openssl=$(ls -d /openssl*) \
       --with-http_sub_module \
+      --with-http_realip_module \
       --add-module=/ngx_pagespeed-release-1.11.33.4-beta && \
 
     make -j4 && \
