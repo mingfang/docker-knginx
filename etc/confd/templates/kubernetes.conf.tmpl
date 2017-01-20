@@ -389,8 +389,8 @@ server {
 {{if $ERROR_PAGE_404}}
         error_page 404 /error_page_404;
         location = /error_page_404 {
-          proxy_set_header X-Orignal-Request-Uri $original_request_uri;
-          proxy_set_header X-Orignal-Request-ID $original_request_id;
+          proxy_set_header X-Original-Request-Uri $original_request_uri;
+          proxy_set_header X-Original-Request-ID $original_request_id;
           proxy_pass {{$ERROR_PAGE_404}};
         }
 {{end}}
@@ -400,8 +400,8 @@ server {
 {{if $ERROR_PAGE_500}}
         error_page 500 /error_page_500;
         location = /error_page_500 {
-          proxy_set_header X-Orignal-Request-Uri $original_request_uri;
-          proxy_set_header X-Orignal-Request-ID $original_request_id;
+          proxy_set_header X-Original-Request-Uri $original_request_uri;
+          proxy_set_header X-Original-Request-ID $original_request_id;
           proxy_pass {{$ERROR_PAGE_500}};
         }
 {{end}}
@@ -411,8 +411,8 @@ server {
 {{if $ERROR_PAGE_503}}
         error_page 503 /error_page_503;
         location = /error_page_503 {
-          proxy_set_header X-Orignal-Request-Uri $original_request_uri;
-          proxy_set_header X-Orignal-Request-ID $original_request_id;
+          proxy_set_header X-Original-Request-Uri $original_request_uri;
+          proxy_set_header X-Original-Request-ID $original_request_id;
           proxy_pass {{$ERROR_PAGE_503}};
         }
 {{end}}
