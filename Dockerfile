@@ -139,7 +139,7 @@ COPY redis.conf /etc/
 #SAML
 COPY saml/saml.conf /etc/nginx/
 COPY saml/saml.lua /usr/local/openresty/lualib/
-RUN chmod +r /usr/local/openresty/lualib
+RUN chmod +r /usr/local/openresty/lualib/*
 
 COPY pagespeed.conf /etc/nginx/
 
