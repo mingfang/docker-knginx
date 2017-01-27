@@ -1,3 +1,4 @@
 .git
 data
 **/node_modules
+.idea
