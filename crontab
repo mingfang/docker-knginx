@@ -1,0 +1,3 @@
+# Everyday at 3am
+0 3 * * * /usr/sbin/logrotate -fv /etc/logrotate.d/nginx.conf >> /var/log/nginx/logrotate.log 2>&1
+#

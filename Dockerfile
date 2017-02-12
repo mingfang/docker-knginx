@@ -143,6 +143,11 @@ RUN chmod +r /usr/local/openresty/lualib/*
 
 COPY pagespeed.conf /etc/nginx/
 
+#logrotate
+RUN apt-get install -y logrotate cron
+COPY logrotate.conf /etc/logrotate.d/nginx.conf
+COPY crontab /
+
 # Add runit services
 COPY sv /etc/service 
 ARG BUILD_INFO
