@@ -109,6 +109,7 @@ function saml.logout()
         ngx.log(ngx.INFO, "logout: "..session.data.nameID)
     end
 
+    -- call logout url if set
     if logoutLocation then
         -- enrich request with session data
         for key, value in pairs(session.data) do
@@ -118,6 +119,29 @@ function saml.logout()
         ngx.log(ngx.INFO, logoutLocation.." "..res.status)
     end
 
+    -- clear all session* cookies
+    local ck = require "resty.cookie"
+    local cookie, err = ck:new()
+    if not cookie then
+        ngx.log(ngx.ERR, err)
+    end
+
+    if cookie then
+        local fields, err = cookie:get_all()
+        if fields then
+            for k, v in pairs(fields) do
+                if ngx.re.find(k, "^session.*") then
+                    ngx.log(ngx.INFO, "deleting cookie: "..k)
+                    cookie:set({
+                        key = k,
+                        value="",
+                        expires = "expires=Thu, Jan 01 1970 00:00:00 UTC"
+                    })
+                end
+            end
+        end
+    end
+    
     session:destroy()
     return ngx.exit(200)
 end

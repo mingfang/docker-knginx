@@ -95,6 +95,7 @@ RUN luarocks install lua-resty-session
 RUN luarocks install inspect
 RUN luarocks install lua-resty-http
 RUN luarocks install nginx-lua-prometheus
+RUN luarocks install lua-resty-cookie
 
 #ssl
 RUN openssl dhparam -out /etc/ssl/dhparams.pem 2048
@@ -131,6 +132,11 @@ RUN luarocks install lua-resty-http && \
 RUN mkdir -p /etc/resty-auto-ssl && \
     chown nobody /etc/resty-auto-ssl
 
+#logrotate
+RUN apt-get install -y logrotate cron
+COPY logrotate.conf /etc/logrotate.d/nginx.conf
+COPY crontab /
+
 COPY nginx.conf /etc/nginx/
 COPY etc/confd /etc/confd
 COPY test.sh /
@@ -142,11 +148,6 @@ COPY saml/saml.lua /usr/local/openresty/lualib/
 RUN chmod +r /usr/local/openresty/lualib/*
 
 COPY pagespeed.conf /etc/nginx/
-
-#logrotate
-RUN apt-get install -y logrotate cron
-COPY logrotate.conf /etc/logrotate.d/nginx.conf
-COPY crontab /
 
 # Add runit services
 COPY sv /etc/service 
