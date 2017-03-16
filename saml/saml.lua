@@ -130,12 +130,13 @@ function saml.logout()
         local fields, err = cookie:get_all()
         if fields then
             for k, v in pairs(fields) do
-                if ngx.re.find(k, "^session.*") then
+                if ngx.re.find(k, "^session.+") then
                     ngx.log(ngx.INFO, "deleting cookie: "..k)
                     cookie:set({
                         key = k,
-                        value="",
-                        expires = "expires=Thu, Jan 01 1970 00:00:00 UTC"
+                        value = "",
+                        path = "/",
+                        expires = "Thu, Jan 01 1970 00:00:00 UTC"
                     })
                 end
             end
