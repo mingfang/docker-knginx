@@ -20,6 +20,7 @@ env HTTPS_ONLY;
 env PAGESPEED;
 env LETSENCRYPT_DOMAINS;
 env NO_SSI;
+env SUB_FILTER;
 
 http {
     include       mime.types;
@@ -121,6 +122,11 @@ http {
     ssl_stapling on;
     #ssl_stapling_verify on;
 
+    {{$SUB_FILTER := getenv "SUB_FILTER"}}
+    {{if $SUB_FILTER}}
+    sub_filter {{$SUB_FILTER}};
+    sub_filter_once on;
+    {{end}}
 
     {{$LETSENCRYPT_DOMAINS := getenv "LETSENCRYPT_DOMAINS"}}
     {{if $LETSENCRYPT_DOMAINS}}
