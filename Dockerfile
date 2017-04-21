@@ -32,9 +32,12 @@ RUN wget -O - http://download.redis.io/releases/redis-3.2.6.tar.gz | tar zx && \
     rm -rf /redis-*
 
 #OpenResty
-RUN wget -O - https://github.com/pagespeed/ngx_pagespeed/archive/release-1.11.33.4-beta.tar.gz | tar xz && \
+ENV NPS_VERSION 1.12.34.2
+RUN wget -O - https://github.com/pagespeed/ngx_pagespeed/archive/v${NPS_VERSION}-beta.tar.gz | tar xz && \
     cd ngx_pagespeed* && \
-    wget -O - https://dl.google.com/dl/page-speed/psol/1.11.33.4.tar.gz | tar xz && \
+    psol_url=https://dl.google.com/dl/page-speed/psol/${NPS_VERSION}.tar.gz && \
+    [ -e scripts/format_binary_url.sh ] && psol_url=$(scripts/format_binary_url.sh PSOL_BINARY_URL) && \
+    wget -O - ${psol_url} | tar xz && \
     cd / && \
     wget -O - https://github.com/openssl/openssl/archive/OpenSSL_1_0_2j.tar.gz | tar zx && \
     wget -O - https://openresty.org/download/openresty-1.11.2.2.tar.gz | tar zx && \
@@ -43,7 +46,7 @@ RUN wget -O - https://github.com/pagespeed/ngx_pagespeed/archive/release-1.11.33
     make install && \
     mv apps/openssl /usr/bin/ && \
     cd /openresty* && \
-    ./configure -j4 \
+    ./configure -j$(grep -c '^processor' /proc/cpuinfo) \
       --with-http_v2_module \
       --with-pcre-jit \
       --with-ipv6 \
@@ -63,7 +66,7 @@ RUN wget -O - https://github.com/pagespeed/ngx_pagespeed/archive/release-1.11.33
       --with-openssl=$(ls -d /openssl*) \
       --with-http_sub_module \
       --with-http_realip_module \
-      --add-module=/ngx_pagespeed-release-1.11.33.4-beta && \
+      --add-module=/ngx_pagespeed-${NPS_VERSION}-beta && \
 
     make -j4 && \
     make install && \
