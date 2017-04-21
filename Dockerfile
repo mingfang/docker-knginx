@@ -39,7 +39,7 @@ RUN wget -O - https://github.com/pagespeed/ngx_pagespeed/archive/v${NPS_VERSION}
     [ -e scripts/format_binary_url.sh ] && psol_url=$(scripts/format_binary_url.sh PSOL_BINARY_URL) && \
     wget -O - ${psol_url} | tar xz && \
     cd / && \
-    wget -O - https://github.com/openssl/openssl/archive/OpenSSL_1_0_2j.tar.gz | tar zx && \
+    wget -O - https://www.openssl.org/source/openssl-1.0.2k.tar.gz | tar zx && \
     wget -O - https://openresty.org/download/openresty-1.11.2.2.tar.gz | tar zx && \
     cd /openssl* && \
     ./config && \
