@@ -114,10 +114,6 @@ RUN mkdir -p /etc/nginx/ssl && \
 # Force triggering ERROR_PAGE_404 page
 RUN rm -rf /usr/local/openresty/nginx/html
 
-RUN mkdir -p /var/cache/nginx/pagespeed && chmod 777 /var/cache/nginx/pagespeed
-RUN mkdir -p /var/log/pagespeed && chmod 777 /var/log/pagespeed
-RUN mkdir -p /var/nginx/cache && chmod 777 /var/nginx/cache
-
 #Passport
 RUN wget -O - https://nodejs.org/dist/v7.2.1/node-v7.2.1-linux-x64.tar.gz | tar xz
 RUN mv node* node && \
@@ -141,6 +137,7 @@ RUN apt-get install -y logrotate cron
 COPY logrotate.conf /etc/logrotate.d/nginx.conf
 COPY crontab /
 
+#Config
 COPY nginx.conf /etc/nginx/
 COPY etc/confd /etc/confd
 COPY test.sh /
@@ -151,7 +148,12 @@ COPY saml/saml.conf /etc/nginx/
 COPY saml/saml.lua /usr/local/openresty/lualib/
 RUN chmod +r /usr/local/openresty/lualib/*
 
-COPY pagespeed.conf /etc/nginx/
+#Pagespeed data
+RUN mkdir -p /var/cache/nginx/pagespeed && chown nobody /var/cache/nginx/pagespeed && \
+    mkdir -p /var/log/pagespeed && chown nobody /var/log/pagespeed && \
+    mkdir -p /var/nginx/cache && chown nobody /var/nginx/cache
+COPY pagespeed-global.conf /etc/nginx/
+COPY pagespeed-server.conf /etc/nginx/
 
 # Add runit services
 COPY sv /etc/service 

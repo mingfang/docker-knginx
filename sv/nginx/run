@@ -4,5 +4,9 @@ sv start redis  || exit 1
 
 source /etc/envvars
 
+mkdir -p /var/cache/nginx/pagespeed && chown nobody /var/cache/nginx/pagespeed
+mkdir -p /var/log/pagespeed && chown nobody /var/log/pagespeed
+mkdir -p /var/nginx/cache && chown nobody /var/nginx/cache
+
 exec 2>&1
 exec /usr/sbin/nginx -g "daemon off;"
