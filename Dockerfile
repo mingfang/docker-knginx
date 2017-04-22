@@ -40,7 +40,7 @@ RUN wget -O - https://github.com/pagespeed/ngx_pagespeed/archive/v${NPS_VERSION}
     wget -O - ${psol_url} | tar xz && \
     cd / && \
     wget -O - https://www.openssl.org/source/openssl-1.0.2k.tar.gz | tar zx && \
-    wget -O - https://openresty.org/download/openresty-1.11.2.2.tar.gz | tar zx && \
+    wget -O - https://openresty.org/download/openresty-1.11.2.3.tar.gz | tar zx && \
     cd /openssl* && \
     ./config && \
     make install && \
@@ -68,7 +68,7 @@ RUN wget -O - https://github.com/pagespeed/ngx_pagespeed/archive/v${NPS_VERSION}
       --with-http_realip_module \
       --add-module=/ngx_pagespeed-${NPS_VERSION}-beta && \
 
-    make -j4 && \
+    make -j$(grep -c '^processor' /proc/cpuinfo) && \
     make install && \
     rm -rf /openresty* && \
     rm -rf /openssl* && \
