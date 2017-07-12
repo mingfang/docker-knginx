@@ -1,21 +1,20 @@
-FROM ubuntu:16.04
+FROM ubuntu:16.04 as base
 
-ENV DEBIAN_FRONTEND=noninteractive \
-    LANG=en_US.UTF-8 \
-    TERM=xterm
+ENV DEBIAN_FRONTEND=noninteractive TERM=xterm
 RUN echo "export > /etc/envvars" >> /root/.bashrc && \
-    echo "export PS1='\e[1;31m\]\u@\h:\w\\$\[\e[0m\] '" | tee -a /root/.bashrc /etc/bash.bashrc && \
-    echo "alias tcurrent='tail /var/log/*/current -f'" | tee -a /root/.bashrc /etc/bash.bashrc
+    echo "export PS1='\[\e[1;31m\]\u@\h:\w\\$\[\e[0m\] '" | tee -a /root/.bashrc /etc/skel/.bashrc && \
+    echo "alias tcurrent='tail /var/log/*/current -f'" | tee -a /root/.bashrc /etc/skel/.bashrc
 
 RUN apt-get update
-RUN apt-get install -y locales && locale-gen en_US en_US.UTF-8
+RUN apt-get install -y locales && locale-gen en_US.UTF-8 && dpkg-reconfigure locales
+ENV LANGUAGE=en_US.UTF-8 LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
 
 # Runit
 RUN apt-get install -y --no-install-recommends runit
 CMD export > /etc/envvars && /usr/sbin/runsvdir-start
 
 # Utilities
-RUN apt-get install -y --no-install-recommends vim less net-tools inetutils-ping wget curl git telnet nmap socat dnsutils netcat tree htop unzip sudo software-properties-common jq psmisc iproute python ssh rsync
+RUN apt-get install -y --no-install-recommends vim less net-tools inetutils-ping wget curl git telnet nmap socat dnsutils netcat tree htop unzip sudo software-properties-common jq psmisc iproute python ssh rsync gettext-base
 
 RUN apt-get install -y --no-install-recommends libreadline-dev libncurses5-dev libpcre3-dev zlib1g-dev perl make build-essential
 
@@ -24,9 +23,9 @@ RUN wget -O /usr/local/bin/confd  https://github.com/kelseyhightower/confd/relea
     chmod +x /usr/local/bin/confd
 
 #Redis
-RUN wget -O - http://download.redis.io/releases/redis-3.2.6.tar.gz | tar zx && \
+RUN wget -O - http://download.redis.io/releases/redis-3.2.9.tar.gz | tar zx && \
     cd redis-* && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install && \
     cp redis.conf /etc/redis.conf && \
     rm -rf /redis-*
@@ -39,8 +38,8 @@ RUN wget -O - https://github.com/pagespeed/ngx_pagespeed/archive/v${NPS_VERSION}
     [ -e scripts/format_binary_url.sh ] && psol_url=$(scripts/format_binary_url.sh PSOL_BINARY_URL) && \
     wget -O - ${psol_url} | tar xz && \
     cd / && \
-    wget -O - https://www.openssl.org/source/openssl-1.0.2k.tar.gz | tar zx && \
-    wget -O - https://openresty.org/download/openresty-1.11.2.3.tar.gz | tar zx && \
+    wget -O - https://www.openssl.org/source/openssl-1.0.2l.tar.gz | tar zx && \
+    wget -O - https://openresty.org/download/openresty-1.11.2.4.tar.gz | tar zx && \
     cd /openssl* && \
     ./config && \
     make install && \
@@ -68,7 +67,7 @@ RUN wget -O - https://github.com/pagespeed/ngx_pagespeed/archive/v${NPS_VERSION}
       --with-http_realip_module \
       --add-module=/ngx_pagespeed-${NPS_VERSION}-beta && \
 
-    make -j$(grep -c '^processor' /proc/cpuinfo) && \
+    make -j$(nproc) && \
     make install && \
     rm -rf /openresty* && \
     rm -rf /openssl* && \
