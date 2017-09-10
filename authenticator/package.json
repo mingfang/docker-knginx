@@ -6,12 +6,12 @@
     "start": "node app.js"
   },
   "dependencies": {
-    "body-parser": "^1.15.2",
-    "config": "^1.24.0",
-    "express": "^4.14.0",
+    "body-parser": "^1.18.0",
+    "config": "^1.26.2",
+    "express": "^4.15.4",
     "fs": "0.0.2",
-    "js-yaml": "^3.7.0",
-    "log4js": "^1.0.1",
+    "js-yaml": "^3.9.1",
+    "log4js": "^1.1.1",
     "passport-saml": "^0.15.0"
   }
 }
