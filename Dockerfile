@@ -66,7 +66,6 @@ RUN wget -O - https://github.com/pagespeed/ngx_pagespeed/archive/v${NPS_VERSION}
       --with-http_sub_module \
       --with-http_realip_module \
       --add-module=/ngx_pagespeed-${NPS_VERSION}-beta && \
-
     make -j$(nproc) && \
     make install && \
     rm -rf /openresty* && \
@@ -114,7 +113,7 @@ RUN mkdir -p /etc/nginx/ssl && \
 RUN rm -rf /usr/local/openresty/nginx/html
 
 #Passport
-RUN wget -O - https://nodejs.org/dist/v7.2.1/node-v7.2.1-linux-x64.tar.gz | tar xz
+RUN wget -O - https://nodejs.org/dist/v8.4.0/node-v8.4.0-linux-x64.tar.gz | tar xz
 RUN mv node* node && \
     ln -s /node/bin/node /usr/local/bin/node && \
     ln -s /node/bin/npm /usr/local/bin/npm
