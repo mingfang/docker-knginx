@@ -19,7 +19,7 @@ RUN apt-get install -y --no-install-recommends vim less net-tools inetutils-ping
 RUN apt-get install -y --no-install-recommends libreadline-dev libncurses5-dev libpcre3-dev zlib1g-dev perl make build-essential
 
 #Confd
-RUN wget -O /usr/local/bin/confd  https://github.com/kelseyhightower/confd/releases/download/v0.13.0/confd-0.13.0-linux-amd64 && \
+RUN wget -O /usr/local/bin/confd  https://github.com/kelseyhightower/confd/releases/download/v0.14.0/confd-0.14.0-linux-amd64 && \
     chmod +x /usr/local/bin/confd
 
 #Redis
