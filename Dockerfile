@@ -30,8 +30,19 @@ RUN wget -O - http://download.redis.io/releases/redis-4.0.8.tar.gz | tar zx && \
     cp redis.conf /etc/redis.conf && \
     rm -rf /redis-*
 
+#libmodsecurity
+RUN apt-get install -y m4 libtool automake libxml2-dev libyajl-dev libgeoip-dev libcurl4-gnutls-dev pkgconf
+RUN wget -O - https://github.com/SpiderLabs/ModSecurity/releases/download/v3.0.0/modsecurity-v3.0.0.tar.gz | tar zx && \
+    cd modsecurity* && \
+    ./build.sh && \
+    ./configure && \
+    make -j$(nproc) && \
+    make install && \
+    rm -rf /modsecurity*
+
 #OpenResty
-RUN wget -O - https://www.openssl.org/source/openssl-1.0.2n.tar.gz | tar zx && \
+RUN wget -O - https://github.com/SpiderLabs/ModSecurity-nginx/releases/download/v1.0.0/modsecurity-nginx-v1.0.0.tar.gz | tar zx && \
+    wget -O - https://www.openssl.org/source/openssl-1.0.2n.tar.gz | tar zx && \
     wget -O - https://openresty.org/download/openresty-1.13.6.1.tar.gz | tar zx && \
     cd /openssl* && \
     ./config && \
@@ -57,11 +68,13 @@ RUN wget -O - https://www.openssl.org/source/openssl-1.0.2n.tar.gz | tar zx && \
       --with-openssl=$(ls -d /openssl*) \
       --with-http_sub_module \
       --with-http_realip_module \
+      --add-module=/modsecurity-nginx-v1.0.0 \
     && \
     make -j$(nproc) && \
     make install && \
     rm -rf /openresty* && \
-    rm -rf /openssl* 
+    rm -rf /openssl* && \
+    rm -rf /modsecurity-nginx*
 
 RUN mkdir -p /etc/nginx && \
     mkdir -p /var/log/nginx && \
@@ -87,7 +100,6 @@ ENV PATH=/usr/local/openresty/luajit/bin:$PATH
 RUN luarocks install lua-resty-session
 RUN luarocks install inspect
 RUN luarocks install lua-resty-http
-RUN luarocks install nginx-lua-prometheus
 RUN luarocks install lua-resty-cookie
 
 #ssl
@@ -120,6 +132,12 @@ RUN luarocks install lua-resty-http && \
     luarocks install lua-resty-auto-ssl
 RUN mkdir -p /etc/resty-auto-ssl && \
     chown nobody /etc/resty-auto-ssl
+
+#OWASP rules
+RUN wget -O - https://github.com/SpiderLabs/owasp-modsecurity-crs/archive/v3.0.2.tar.gz | tar zx && \
+    mv owasp* /etc/nginx/owasp
+RUN cp /etc/nginx/owasp/crs-setup.conf.example /etc/nginx/owasp/owasp.conf
+COPY modsec /etc/nginx/modsec
 
 #logrotate
 RUN apt-get install -y logrotate cron

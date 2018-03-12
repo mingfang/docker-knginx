@@ -20,6 +20,7 @@ env HTTPS_ONLY;
 env LETSENCRYPT_DOMAINS;
 env NO_SSI;
 env SUB_FILTER;
+env ENABLE_WAF;
 
 http {
     include       mime.types;
@@ -152,18 +153,9 @@ http {
     }
     {{end}}
 
-    #Prometheus
-    lua_shared_dict prometheus_metrics 10M;
     lua_package_path "/usr/local/openresty/luajit/share/lua/5.1/nginx/?.lua;;";
 
     init_by_lua '
-      prometheus = require("prometheus").init("prometheus_metrics")
-      metric_latency = prometheus:histogram( 
-        "nginx_http_request_duration_seconds", 
-        "HTTP Request Latency", 
-        {"host", "uri", "status"},
-        {0.3, 0.5, 1, 3}
-      )
       {{if $LETSENCRYPT_DOMAINS}}
       -- letsencrypt
       auto_ssl = (require "resty.auto-ssl").new()
@@ -184,25 +176,6 @@ http {
       auto_ssl:init_worker()
     }
     {{end}}
-
-    #log prometheus metrics
-    log_by_lua '
-      local m, err = ngx.re.match(ngx.var.uri, "^/[^/]+/[^/]*")
-      if m then
-        metric_latency:observe(ngx.now() - ngx.req.start_time(), {ngx.var.host, m[0], ngx.var.status})
-      else
-        metric_latency:observe(ngx.now() - ngx.req.start_time(), {ngx.var.host, ngx.var.uri, ngx.var.status})
-      end
-    ';
-
-    #called by prometheus
-    server {
-      listen 9102;
-      location /metrics {
-        access_log off;
-        content_by_lua 'prometheus:collect()';
-      }
-    }
 
 # Annotation Env: {{getenv "ANNOTATION"}} default: {{(or (getenv "ANNOTATION") "nginx")}}
 
@@ -383,6 +356,11 @@ server {
     server {
         listen 80 default_server;
         listen 443 default_server http2 deferred ssl;
+{{end}}
+
+{{if (getenv "HTTPS_ONLY")}}
+        modsecurity on;
+        modsecurity_rules_file /etc/nginx/modsec/main.conf;
 {{end}}
 
 {{if $LETSENCRYPT_DOMAINS}}
