@@ -50,28 +50,6 @@ Sample Service Using HTTPBIN
                 - path: /
 ..                
 ```
-### Canary Service 
-Split 10% traffic from v1 to v2 
-```
-  - name: httpbin
-    ports:
-      - port: 5000
-    annotations:
-      nginx:
-        - http:
-            - server: default
-              paths:
-                - path: /
-    containers:
-      - name: httpbin
-        image: rebelsoft.com/httpbin:v1
-    canary:
-      pct_traffic: 10
-      containers:
-        - name: httpbin
-          image: rebelsoft.com/httpbin:v2
-```
-
 ## SAML SSO
 Add to Knginx Definition
 ```
@@ -82,21 +60,21 @@ Add to Knginx Definition
 ```
 Note: The SAML URL is provided by your IDP.  Try https://github.com/mingfang/docker-keycloak.
 
-## Pagespeed 
-Add to Knginx Definition
-```
-..
-        env:
-          - {name: PAGESPEED, value: "on"}
-..
-```
-
 ## Letsencrypt
 Add to Knginx Definition
 ```
 ..
         env:
           - {name: LETSENCRYPT_DOMAINS, value: "www.rebelsoft.com|rebelsoft.com"}
+..
+```
+
+## Modsecurity 3 with OWASP Rules
+Add to Knginx Definition
+```
+..
+        env:
+          - {name: ENABLE_WAF, value: "yes"}
 ..
 ```
 
