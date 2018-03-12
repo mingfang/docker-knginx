@@ -1,7 +1,7 @@
 # docker-knginx
 Nginx(OpenResty) to Reverse Proxy Kubernetes Services
 
-See full example here https://github.com/mingfang/jenkins-seed/blob/master/services.yml
+See full example here https://github.com/mingfang/jenkins-seed/blob/master/knginx.yml
 
 ## Knginx Service Definition
 ```
