@@ -19,11 +19,11 @@ RUN apt-get install -y --no-install-recommends vim less net-tools inetutils-ping
 RUN apt-get install -y --no-install-recommends libreadline-dev libncurses5-dev libpcre3-dev zlib1g-dev perl make build-essential
 
 #Confd
-RUN wget -O /usr/local/bin/confd  https://github.com/kelseyhightower/confd/releases/download/v0.14.0/confd-0.14.0-linux-amd64 && \
+RUN wget -O /usr/local/bin/confd  https://github.com/kelseyhightower/confd/releases/download/v0.15.0/confd-0.15.0-linux-amd64 && \
     chmod +x /usr/local/bin/confd
 
 #Redis
-RUN wget -O - http://download.redis.io/releases/redis-4.0.1.tar.gz | tar zx && \
+RUN wget -O - http://download.redis.io/releases/redis-4.0.8.tar.gz | tar zx && \
     cd redis-* && \
     make -j$(nproc) && \
     make install && \
@@ -31,15 +31,8 @@ RUN wget -O - http://download.redis.io/releases/redis-4.0.1.tar.gz | tar zx && \
     rm -rf /redis-*
 
 #OpenResty
-ENV NPS_VERSION 1.12.34.2
-RUN wget -O - https://github.com/pagespeed/ngx_pagespeed/archive/v${NPS_VERSION}-beta.tar.gz | tar xz && \
-    cd ngx_pagespeed* && \
-    psol_url=https://dl.google.com/dl/page-speed/psol/${NPS_VERSION}.tar.gz && \
-    [ -e scripts/format_binary_url.sh ] && psol_url=$(scripts/format_binary_url.sh PSOL_BINARY_URL) && \
-    wget -O - ${psol_url} | tar xz && \
-    cd / && \
-    wget -O - https://www.openssl.org/source/openssl-1.0.2l.tar.gz | tar zx && \
-    wget -O - https://openresty.org/download/openresty-1.11.2.4.tar.gz | tar zx && \
+RUN wget -O - https://www.openssl.org/source/openssl-1.0.2n.tar.gz | tar zx && \
+    wget -O - https://openresty.org/download/openresty-1.13.6.1.tar.gz | tar zx && \
     cd /openssl* && \
     ./config && \
     make install && \
@@ -48,7 +41,6 @@ RUN wget -O - https://github.com/pagespeed/ngx_pagespeed/archive/v${NPS_VERSION}
     ./configure -j$(grep -c '^processor' /proc/cpuinfo) \
       --with-http_v2_module \
       --with-pcre-jit \
-      --with-ipv6 \
       --prefix=/usr/local/openresty \
       --sbin-path=/usr/sbin/nginx \
       --conf-path=/etc/nginx/nginx.conf \
@@ -65,12 +57,11 @@ RUN wget -O - https://github.com/pagespeed/ngx_pagespeed/archive/v${NPS_VERSION}
       --with-openssl=$(ls -d /openssl*) \
       --with-http_sub_module \
       --with-http_realip_module \
-      --add-module=/ngx_pagespeed-${NPS_VERSION}-beta && \
+    && \
     make -j$(nproc) && \
     make install && \
     rm -rf /openresty* && \
-    rm -rf /openssl* && \
-    rm -rf /ngx_pagespeed*
+    rm -rf /openssl* 
 
 RUN mkdir -p /etc/nginx && \
     mkdir -p /var/log/nginx && \
@@ -78,14 +69,14 @@ RUN mkdir -p /etc/nginx && \
     mkdir -p /var/cache/nginx/proxy_temp
 
 #LuaRocks
-RUN wget -O - http://luarocks.org/releases/luarocks-2.3.0.tar.gz | tar zx && \
+RUN wget -O - http://luarocks.org/releases/luarocks-2.4.3.tar.gz | tar zx && \
     cd luarocks-* && \
     ./configure \
       --prefix=/usr/local/openresty/luajit \
       --with-lua=/usr/local/openresty/luajit/ \
-      --lua-suffix=jit-2.1.0-beta2 \
+      --lua-suffix=jit-2.1.0-beta3 \
       --with-lua-include=/usr/local/openresty/luajit/include/luajit-2.1 && \
-      make -j4 && \
+      make -j$(grep -c '^processor' /proc/cpuinfo) && \
       make install && \
       rm -rf /luarocks-*
 RUN cd /usr/local/openresty/luajit/bin && \
@@ -113,7 +104,7 @@ RUN mkdir -p /etc/nginx/ssl && \
 RUN rm -rf /usr/local/openresty/nginx/html
 
 #Passport
-RUN wget -O - https://nodejs.org/dist/v8.4.0/node-v8.4.0-linux-x64.tar.gz | tar xz
+RUN wget -O - https://nodejs.org/dist/v8.10.0/node-v8.10.0-linux-x64.tar.gz | tar xz
 RUN mv node* node && \
     ln -s /node/bin/node /usr/local/bin/node && \
     ln -s /node/bin/npm /usr/local/bin/npm
@@ -145,13 +136,6 @@ COPY redis.conf /etc/
 COPY saml/saml.conf /etc/nginx/
 COPY saml/saml.lua /usr/local/openresty/lualib/
 RUN chmod +r /usr/local/openresty/lualib/*
-
-#Pagespeed data
-RUN mkdir -p /var/cache/nginx/pagespeed && chown nobody /var/cache/nginx/pagespeed && \
-    mkdir -p /var/log/pagespeed && chown nobody /var/log/pagespeed && \
-    mkdir -p /var/nginx/cache && chown nobody /var/nginx/cache
-COPY pagespeed-global.conf /etc/nginx/
-COPY pagespeed-server.conf /etc/nginx/
 
 # Add runit services
 COPY sv /etc/service 
