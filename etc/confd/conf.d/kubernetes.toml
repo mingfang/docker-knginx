@@ -7,5 +7,5 @@ keys = [
     "/endpoints/default"
 ]
 
-check_cmd = "nginx -t -c {{.src}}"
+check_cmd = "/node_modules/.bin/nginxbeautifier -s 4 -i {{.src}} && nginx -t -c {{.src}}"
 reload_cmd = "nginx -s reload"
