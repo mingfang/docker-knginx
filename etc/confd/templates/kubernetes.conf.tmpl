@@ -183,6 +183,10 @@ http {
 
 {{range $serviceJson := getvs "/specs/default/*"}}
   {{$service := json $serviceJson}}
+  {{if $service.metadata.annotations}}
+    {{$annotation := (index $service.metadata.annotations (or (getenv "ANNOTATION") "nginx"))}}
+    {{if $annotation}}
+
   {{$endpointPath := printf "/endpoints/default/%s" $service.metadata.name}}
   {{$endpoint := json (getv $endpointPath)}}
   {{if $endpoint.subsets}}
@@ -201,20 +205,24 @@ http {
     {{end}}
     {{end}}
   {{end}}
+
+  {{end}}
+  {{end}}
 {{end}}
 
 # virtual servers
 
 {{range $serviceJson := getvs "/specs/default/*"}}
   {{$service := json $serviceJson}}
-  {{$endpointPath := printf "/endpoints/default/%s" $service.metadata.name}}
-  {{$endpoint := json (getv $endpointPath)}}
-  {{if $endpoint.subsets}}
-  {{if (index $endpoint.subsets 0).addresses}}
-  {{$defaultPort := index $service.spec.ports 0}}
   {{if $service.metadata.annotations}}
     {{$annotation := (index $service.metadata.annotations (or (getenv "ANNOTATION") "nginx"))}}
     {{if $annotation}}
+
+    {{$endpointPath := printf "/endpoints/default/%s" $service.metadata.name}}
+    {{$endpoint := json (getv $endpointPath)}}
+    {{if $endpoint.subsets}}
+    {{if (index $endpoint.subsets 0).addresses}}
+    {{$defaultPort := index $service.spec.ports 0}}
     {{range jsonArray $annotation}}
     {{if .http}}
     {{range .http}}
@@ -439,14 +447,15 @@ server {
 
 {{range $serviceJson := getvs "/specs/default/*"}}
   {{$service := json $serviceJson}}
-  {{$endpointPath := printf "/endpoints/default/%s" $service.metadata.name}}
-  {{$endpoint := json (getv $endpointPath)}}
-  {{if $endpoint.subsets}}
-  {{if (index $endpoint.subsets 0).addresses}}
-  {{$defaultPort := index $service.spec.ports 0}}
   {{if $service.metadata.annotations}}
     {{$annotation := (index $service.metadata.annotations (or (getenv "ANNOTATION") "nginx"))}}
     {{if $annotation}}
+
+    {{$endpointPath := printf "/endpoints/default/%s" $service.metadata.name}}
+    {{$endpoint := json (getv $endpointPath)}}
+    {{if $endpoint.subsets}}
+    {{if (index $endpoint.subsets 0).addresses}}
+    {{$defaultPort := index $service.spec.ports 0}}
     {{range jsonArray $annotation}}
     {{if .http}}
     {{range .http}}
