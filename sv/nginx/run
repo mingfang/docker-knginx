@@ -2,7 +2,7 @@
 
 source /etc/envvars
 
-mkdir -p /var/nginx/cache && chown nobody /var/nginx/cache
+mkdir -p /var/cache/nginx && chown nobody /var/cache/nginx
 
 exec 2>&1
 exec /usr/sbin/nginx -g "daemon off;"
