@@ -188,7 +188,7 @@ http {
         {{if $endpoint.subsets}}
           {{if (index $endpoint.subsets 0).addresses}}
             {{range $port := $service.spec.ports}}
-              upstream {{$service.metadata.name}}_{{$port.port}} {
+              upstream {{$service.metadata.name}}_{{$port.port}}_{{$service.metadata.namespace}} {
                 ip_hash;
                 keepalive 10;
                 {{range $subset := $endpoint.subsets}}
@@ -247,7 +247,7 @@ http {
 
                     {{range .locations}}
                       location {{.}} {
-                        proxy_pass http://{{$service.metadata.name}}_{{$port}};
+                        proxy_pass http://{{$service.metadata.name}}_{{$port}}_{{$service.metadata.namespace}};
                       }
                     {{end}}
 
@@ -257,7 +257,7 @@ http {
                           {{.}}
                         {{end}}
                         {{if not .no_proxy}}
-                          proxy_pass http://{{$service.metadata.name}}_{{or .port $port}};
+                          proxy_pass http://{{$service.metadata.name}}_{{or .port $port}}_{{$service.metadata.namespace}};
                         {{end}}
                       }
                     {{end}}
@@ -451,7 +451,7 @@ http {
                     #{{$service.metadata.name}}
                     {{range .locations}}
                       location {{.}} {
-                        proxy_pass http://{{$service.metadata.name}}_{{$port}};
+                        proxy_pass http://{{$service.metadata.name}}_{{$port}}_{{$service.metadata.namespace}};
                       }
                     {{end}}
 
@@ -461,7 +461,7 @@ http {
                           {{.}}
                         {{end}}
                         {{if not .no_proxy}}
-                          proxy_pass http://{{$service.metadata.name}}_{{or .port $port}};
+                          proxy_pass http://{{$service.metadata.name}}_{{or .port $port}}_{{$service.metadata.namespace}};
                         {{end}}
                       }
                     {{end}}
