@@ -3,8 +3,8 @@ src = "kubernetes.conf.tmpl"
 dest = "/etc/nginx/nginx.conf"
 prefix = "/registry/services"
 keys = [
-    "/specs/default",
-    "/endpoints/default"
+    "/specs",
+    "/endpoints"
 ]
 
 check_cmd = "/node_modules/.bin/nginxbeautifier -s 4 -i {{.src}} && nginx -t -c {{.src}}"
