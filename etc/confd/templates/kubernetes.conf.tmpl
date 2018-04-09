@@ -184,7 +184,7 @@ http {
     {{if $service.metadata.annotations}}
       {{$annotation := (index $service.metadata.annotations (or (getenv "ANNOTATION") "nginx"))}}
       {{if $annotation}}
-        {{$endpointPath := printf "/endpoints/%s/%s" $NAMESPACE $service.metadata.name}}
+        {{$endpointPath := printf "/endpoints/%s/%s" $service.metadata.namespace $service.metadata.name}}
         {{$endpoint := json (getv $endpointPath)}}
         {{if $endpoint.subsets}}
           {{if (index $endpoint.subsets 0).addresses}}
@@ -212,7 +212,7 @@ http {
     {{if $service.metadata.annotations}}
       {{$annotation := (index $service.metadata.annotations (or (getenv "ANNOTATION") "nginx"))}}
       {{if $annotation}}
-        {{$endpointPath := printf "/endpoints/%s/%s" $NAMESPACE $service.metadata.name}}
+        {{$endpointPath := printf "/endpoints/%s/%s" $service.metadata.namespace $service.metadata.name}}
         {{$endpoint := json (getv $endpointPath)}}
         {{if $endpoint.subsets}}
           {{if (index $endpoint.subsets 0).addresses}}
@@ -441,7 +441,7 @@ http {
     {{if $service.metadata.annotations}}
       {{$annotation := (index $service.metadata.annotations (or (getenv "ANNOTATION") "nginx"))}}
       {{if $annotation}}
-        {{$endpointPath := printf "/endpoints/%s/%s" $NAMESPACE $service.metadata.name}}
+        {{$endpointPath := printf "/endpoints/%s/%s" $service.metadata.namespace $service.metadata.name}}
         {{$endpoint := json (getv $endpointPath)}}
         {{if $endpoint.subsets}}
           {{if (index $endpoint.subsets 0).addresses}}
