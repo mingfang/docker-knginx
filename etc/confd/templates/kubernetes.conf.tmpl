@@ -182,8 +182,7 @@ http {
   {{range $serviceJson := getvs $servicePath}}
     {{$service := json $serviceJson}}
     {{if $service.metadata.annotations}}
-      {{$annotation := (index $service.metadata.annotations (or (getenv "ANNOTATION") "nginx"))}}
-      {{if $annotation}}
+      {{with $annotation := (index $service.metadata.annotations (or (getenv "ANNOTATION") "nginx"))}}
         {{$endpointPath := printf "/endpoints/%s/%s" $service.metadata.namespace $service.metadata.name}}
         {{$endpoint := json (getv $endpointPath)}}
         {{if $endpoint.subsets}}
@@ -210,8 +209,7 @@ http {
   {{range $serviceJson := getvs $servicePath}}
     {{$service := json $serviceJson}}
     {{if $service.metadata.annotations}}
-      {{$annotation := (index $service.metadata.annotations (or (getenv "ANNOTATION") "nginx"))}}
-      {{if $annotation}}
+      {{with $annotation := (index $service.metadata.annotations (or (getenv "ANNOTATION") "nginx"))}}
         {{$endpointPath := printf "/endpoints/%s/%s" $service.metadata.namespace $service.metadata.name}}
         {{$endpoint := json (getv $endpointPath)}}
         {{if $endpoint.subsets}}
@@ -439,8 +437,7 @@ http {
   {{range $serviceJson := getvs $servicePath}}
     {{$service := json $serviceJson}}
     {{if $service.metadata.annotations}}
-      {{$annotation := (index $service.metadata.annotations (or (getenv "ANNOTATION") "nginx"))}}
-      {{if $annotation}}
+      {{with $annotation := (index $service.metadata.annotations (or (getenv "ANNOTATION") "nginx"))}}
         {{$endpointPath := printf "/endpoints/%s/%s" $service.metadata.namespace $service.metadata.name}}
         {{$endpoint := json (getv $endpointPath)}}
         {{if $endpoint.subsets}}
@@ -484,8 +481,7 @@ stream{
   {{range $serviceJson := getvs $servicePath}}
     {{$service := json $serviceJson}}
     {{if $service.metadata.annotations}}
-      {{$annotation := (index $service.metadata.annotations (or (getenv "ANNOTATION") "nginx"))}}
-      {{if $annotation}}
+      {{with $annotation := (index $service.metadata.annotations (or (getenv "ANNOTATION") "nginx"))}}
         {{range jsonArray $annotation}}
           {{if .stream}}
             {{range .stream}}
