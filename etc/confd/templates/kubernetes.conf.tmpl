@@ -99,11 +99,11 @@ http {
   proxy_set_header Connection $connection_upgrade;
   proxy_cache_bypass $http_upgrade;
 
-  {{if not (getenv "NO_SSI") }}
+  {{- if not (getenv "NO_SSI") }}
     ssi on;
     #compresson causes SSI problems, disable it
     proxy_set_header Accept-Encoding "";
-  {{end}}
+  {{- end}}
 
   #SSL
   ssl_dhparam /etc/ssl/dhparams.pem;
@@ -121,14 +121,14 @@ http {
   ssl_stapling on;
   #ssl_stapling_verify on;
 
-  {{$SUB_FILTER := getenv "SUB_FILTER"}}
-  {{if $SUB_FILTER}}
+  {{- $SUB_FILTER := getenv "SUB_FILTER"}}
+  {{- if $SUB_FILTER}}
     sub_filter {{$SUB_FILTER}};
     sub_filter_once on;
-  {{end}}
+  {{- end}}
 
-  {{$LETSENCRYPT_DOMAINS := getenv "LETSENCRYPT_DOMAINS"}}
-  {{if $LETSENCRYPT_DOMAINS}}
+  {{- $LETSENCRYPT_DOMAINS := getenv "LETSENCRYPT_DOMAINS"}}
+  {{- if $LETSENCRYPT_DOMAINS}}
     #letsencrypt
     #1MB of storage holds certificates for approximately 100 separate domains.
     lua_shared_dict auto_ssl 1m;
@@ -150,12 +150,12 @@ http {
         }
       }
     }
-  {{end}}
+  {{- end}}
 
   lua_package_path "/usr/local/openresty/luajit/share/lua/5.1/nginx/?.lua;;";
 
   init_by_lua '
-    {{if $LETSENCRYPT_DOMAINS}}
+    {{- if $LETSENCRYPT_DOMAINS}}
       -- letsencrypt
       auto_ssl = (require "resty.auto-ssl").new()
 
@@ -167,61 +167,61 @@ http {
       end)
 
       auto_ssl:init()
-    {{end}}
+    {{- end}}
   ';
 
-  {{if $LETSENCRYPT_DOMAINS}}
+  {{- if $LETSENCRYPT_DOMAINS}}
     init_worker_by_lua_block {
       auto_ssl:init_worker()
     }
-  {{end}}
+  {{- end}}
 
   # Upstreams
 
-  {{range $serviceJson := getvs $servicePath}}
-    {{$service := json $serviceJson}}
-    {{if $service.metadata.annotations}}
-      {{with $annotation := (index $service.metadata.annotations $ANNOTATION)}}
-        {{$endpointPath := printf "/endpoints/%s/%s" $service.metadata.namespace $service.metadata.name}}
-        {{$endpoint := json (getv $endpointPath)}}
-        {{if $endpoint.subsets}}
-          {{if (index $endpoint.subsets 0).addresses}}
-            {{range $port := $service.spec.ports}}
+  {{- range $serviceJson := getvs $servicePath}}
+    {{- $service := json $serviceJson}}
+    {{- if $service.metadata.annotations}}
+      {{- with $annotation := (index $service.metadata.annotations $ANNOTATION)}}
+        {{- $endpointPath := printf "/endpoints/%s/%s" $service.metadata.namespace $service.metadata.name}}
+        {{- $endpoint := json (getv $endpointPath)}}
+        {{- if $endpoint.subsets}}
+          {{- if (index $endpoint.subsets 0).addresses}}
+            {{- range $port := $service.spec.ports}}
               upstream {{$service.metadata.name}}_{{$port.port}}_{{$service.metadata.namespace}} {
                 ip_hash;
                 keepalive 10;
-                {{range $subset := $endpoint.subsets}}
-                  {{range $subset.addresses}}
+                {{- range $subset := $endpoint.subsets}}
+                  {{- range $subset.addresses}}
                     server {{.ip}}:{{$port.targetPort}} weight=1;
-                  {{end}}
-                {{end}}
+                  {{- end}}
+                {{- end}}
               }
-            {{end}}
-          {{end}}
-        {{end}}
-      {{end}}
-    {{end}}
-  {{end}}
+            {{- end}}
+          {{- end}}
+        {{- end}}
+      {{- end}}
+    {{- end}}
+  {{- end}}
 
   # virtual servers
 
-  {{range $serviceJson := getvs $servicePath}}
-    {{$service := json $serviceJson}}
-    {{if $service.metadata.annotations}}
-      {{with $annotation := (index $service.metadata.annotations $ANNOTATION)}}
-        {{$endpointPath := printf "/endpoints/%s/%s" $service.metadata.namespace $service.metadata.name}}
-        {{$endpoint := json (getv $endpointPath)}}
-        {{if $endpoint.subsets}}
-          {{if (index $endpoint.subsets 0).addresses}}
-            {{$defaultPort := index $service.spec.ports 0}}
-            {{range jsonArray $annotation}}
-              {{if .http}}
-                {{range .http}}
-                  {{if ne .server "default"}}
-                    {{$port := or .port $defaultPort.port}}
+  {{- range $serviceJson := getvs $servicePath}}
+    {{- $service := json $serviceJson}}
+    {{- if $service.metadata.annotations}}
+      {{- with $annotation := (index $service.metadata.annotations $ANNOTATION)}}
+        {{- $endpointPath := printf "/endpoints/%s/%s" $service.metadata.namespace $service.metadata.name}}
+        {{- $endpoint := json (getv $endpointPath)}}
+        {{- if $endpoint.subsets}}
+          {{- if (index $endpoint.subsets 0).addresses}}
+            {{- $defaultPort := index $service.spec.ports 0}}
+            {{- range jsonArray $annotation}}
+              {{- if .http}}
+                {{- range .http}}
+                  {{- if ne .server "default"}}
+                    {{- $port := or .port $defaultPort.port}}
                     #{{$service.metadata.name}} {{$annotation}}
 
-                    {{if (getenv "HTTPS_ONLY")}}
+                    {{- if (getenv "HTTPS_ONLY")}}
                       #redirect to https
                       server {
                         listen 80;
@@ -234,34 +234,34 @@ http {
                       server {
                         listen 443;
                         server_name {{.server}};
-                    {{else}}
+                    {{- else}}
                       server {
                         listen 80;
                         listen 443;
                         server_name {{.server}};
-                    {{end}}
-                    {{range .directives}}
+                    {{- end}}
+                    {{- range .directives}}
                       {{.}}
-                    {{end}}
+                    {{- end}}
 
-                    {{range .locations}}
+                    {{- range .locations}}
                       location {{.}} {
                         proxy_pass http://{{$service.metadata.name}}_{{$port}}_{{$service.metadata.namespace}};
                       }
-                    {{end}}
+                    {{- end}}
 
-                    {{range .paths}}
+                    {{- range .paths}}
                       location {{.path}} {
-                        {{range .directives}}
+                        {{- range .directives}}
                           {{.}}
-                        {{end}}
-                        {{if not .no_proxy}}
+                        {{- end}}
+                        {{- if not .no_proxy}}
                           proxy_pass http://{{$service.metadata.name}}_{{or .port $port}}_{{$service.metadata.namespace}};
-                        {{end}}
+                        {{- end}}
                       }
-                    {{end}}
+                    {{- end}}
 
-                    {{if $LETSENCRYPT_DOMAINS}}
+                    {{- if $LETSENCRYPT_DOMAINS}}
                       # Endpoint used for performing domain verification with Let's Encrypt.
                       location /.well-known/acme-challenge/ {
                         access_by_lua_block { return }
@@ -274,17 +274,17 @@ http {
                       ssl_certificate_by_lua_block {
                         auto_ssl:ssl_certificate()
                       }
-                    {{end}}
+                    {{- end}}
                   }
-                  {{end}}
-                {{end}}
-              {{end}}
-            {{end}}
-          {{end}}
-        {{end}}
-      {{end}}
-    {{end}}
-  {{end}}
+                  {{- end}}
+                {{- end}}
+              {{- end}}
+            {{- end}}
+          {{- end}}
+        {{- end}}
+      {{- end}}
+    {{- end}}
+  {{- end}}
 
   # admin server
   server {
@@ -296,12 +296,12 @@ http {
 
   # default server
 
-  {{if or (getenv "SAML_IDP_URL") (getenv "HTTPS_ONLY")}}
+  {{- if or (getenv "SAML_IDP_URL") (getenv "HTTPS_ONLY")}}
     #redirect to https
     server {
       listen 80 default_server;
 
-      {{if $LETSENCRYPT_DOMAINS}}
+      {{- if $LETSENCRYPT_DOMAINS}}
         # Endpoint used for performing domain verification with Let's Encrypt.
         location /.well-known/acme-challenge/ {
           access_by_lua_block { return }
@@ -314,7 +314,7 @@ http {
         ssl_certificate_by_lua_block {
           auto_ssl:ssl_certificate()
         }
-      {{end}}
+      {{- end}}
 
       #Load Balancer Status
       location /lb-status {
@@ -334,10 +334,10 @@ http {
     #https only
     server {
       listen 443 default_server http2 deferred ssl;
-      {{if (getenv "SAML_IDP_URL")}}
+      {{- if (getenv "SAML_IDP_URL")}}
         #Enable SAML
         include saml.conf;
-      {{end}}
+      {{- end}}
       #PROFILE_LOCATION must point to something like this
       #location /profile {
       #  proxy_pass http://192.168.1.160:3001;
@@ -348,18 +348,18 @@ http {
       #  proxy_pass http://192.168.1.160:3001;
       #}
 
-  {{else}}
+  {{- else}}
     server {
       listen 80 default_server;
       listen 443 default_server http2 deferred ssl;
-  {{end}}
+  {{- end}}
 
-  {{if (getenv "HTTPS_ONLY")}}
+  {{- if (getenv "HTTPS_ONLY")}}
     modsecurity on;
     modsecurity_rules_file /etc/nginx/modsec/main.conf;
-  {{end}}
+  {{- end}}
 
-  {{if $LETSENCRYPT_DOMAINS}}
+  {{- if $LETSENCRYPT_DOMAINS}}
     # Endpoint used for performing domain verification with Let's Encrypt.
     location /.well-known/acme-challenge/ {
       access_by_lua_block { return }
@@ -372,46 +372,46 @@ http {
     ssl_certificate_by_lua_block {
       auto_ssl:ssl_certificate()
     }
-  {{end}}
+  {{- end}}
 
-  {{if or (or (getenv "ERROR_PAGE_404") (getenv "ERROR_PAGE_500")) (getenv "ERROR_PAGE_503")}}
+  {{- if or (or (getenv "ERROR_PAGE_404") (getenv "ERROR_PAGE_500")) (getenv "ERROR_PAGE_503")}}
     set $original_request_uri $request_uri;
     set $original_request_id $request_id;
     proxy_intercept_errors on;
-  {{end}}
+  {{- end}}
 
-  {{$ERROR_PAGE_404 := getenv "ERROR_PAGE_404"}}
+  {{- $ERROR_PAGE_404 := getenv "ERROR_PAGE_404"}}
   # ERROR_PAGE_404 = {{$ERROR_PAGE_404}}
-  {{if $ERROR_PAGE_404}}
+  {{- if $ERROR_PAGE_404}}
     error_page 404 /error_page_404;
     location = /error_page_404 {
       proxy_set_header X-Original-Request-Uri $original_request_uri;
       proxy_set_header X-Original-Request-ID $original_request_id;
       proxy_pass {{$ERROR_PAGE_404}};
     }
-  {{end}}
+  {{- end}}
 
-  {{$ERROR_PAGE_500 := getenv "ERROR_PAGE_500"}}
+  {{- $ERROR_PAGE_500 := getenv "ERROR_PAGE_500"}}
   # ERROR_PAGE_500 = {{$ERROR_PAGE_500}}
-  {{if $ERROR_PAGE_500}}
+  {{- if $ERROR_PAGE_500}}
     error_page 500 /error_page_500;
     location = /error_page_500 {
       proxy_set_header X-Original-Request-Uri $original_request_uri;
       proxy_set_header X-Original-Request-ID $original_request_id;
       proxy_pass {{$ERROR_PAGE_500}};
     }
-  {{end}}
+  {{- end}}
 
-  {{$ERROR_PAGE_503 := getenv "ERROR_PAGE_503"}}
+  {{- $ERROR_PAGE_503 := getenv "ERROR_PAGE_503"}}
   # ERROR_PAGE_503 = {{$ERROR_PAGE_503}}
-  {{if $ERROR_PAGE_503}}
+  {{- if $ERROR_PAGE_503}}
     error_page 503 /error_page_503;
     location = /error_page_503 {
       proxy_set_header X-Original-Request-Uri $original_request_uri;
       proxy_set_header X-Original-Request-ID $original_request_id;
       proxy_pass {{$ERROR_PAGE_503}};
     }
-  {{end}}
+  {{- end}}
 
   #Load Balancer Status
   location /lb-status {
@@ -433,57 +433,57 @@ http {
     try_files $uri @missing_favicon;
   }
 
-  {{range $serviceJson := getvs $servicePath}}
-    {{$service := json $serviceJson}}
-    {{if $service.metadata.annotations}}
-      {{with $annotation := (index $service.metadata.annotations $ANNOTATION)}}
-        {{$endpointPath := printf "/endpoints/%s/%s" $service.metadata.namespace $service.metadata.name}}
-        {{$endpoint := json (getv $endpointPath)}}
-        {{if $endpoint.subsets}}
-          {{if (index $endpoint.subsets 0).addresses}}
-            {{$defaultPort := index $service.spec.ports 0}}
-            {{range jsonArray $annotation}}
-              {{if .http}}
-                {{range .http}}
-                  {{if eq .server "default"}}
-                    {{$port := or .port $defaultPort.port}}
+  {{- range $serviceJson := getvs $servicePath}}
+    {{- $service := json $serviceJson}}
+    {{- if $service.metadata.annotations}}
+      {{- with $annotation := (index $service.metadata.annotations $ANNOTATION)}}
+        {{- $endpointPath := printf "/endpoints/%s/%s" $service.metadata.namespace $service.metadata.name}}
+        {{- $endpoint := json (getv $endpointPath)}}
+        {{- if $endpoint.subsets}}
+          {{- if (index $endpoint.subsets 0).addresses}}
+            {{- $defaultPort := index $service.spec.ports 0}}
+            {{- range jsonArray $annotation}}
+              {{- if .http}}
+                {{- range .http}}
+                  {{- if eq .server "default"}}
+                    {{- $port := or .port $defaultPort.port}}
                     #{{$service.metadata.name}}
-                    {{range .locations}}
+                    {{- range .locations}}
                       location {{.}} {
                         proxy_pass http://{{$service.metadata.name}}_{{$port}}_{{$service.metadata.namespace}};
                       }
-                    {{end}}
+                    {{- end}}
 
-                    {{range .paths}}
+                    {{- range .paths}}
                       location {{.path}} {
-                        {{range .directives}}
+                        {{- range .directives}}
                           {{.}}
-                        {{end}}
-                        {{if not .no_proxy}}
+                        {{- end}}
+                        {{- if not .no_proxy}}
                           proxy_pass http://{{$service.metadata.name}}_{{or .port $port}}_{{$service.metadata.namespace}};
-                        {{end}}
+                        {{- end}}
                       }
-                    {{end}}
-                  {{end}}
-                {{end}}
-              {{end}}
-            {{end}}
-          {{end}}
-        {{end}}
-      {{end}}
-    {{end}}
-  {{end}}
+                    {{- end}}
+                  {{- end}}
+                {{- end}}
+              {{- end}}
+            {{- end}}
+          {{- end}}
+        {{- end}}
+      {{- end}}
+    {{- end}}
+  {{- end}}
   }
 }
 
 stream{
-  {{range $serviceJson := getvs $servicePath}}
-    {{$service := json $serviceJson}}
-    {{if $service.metadata.annotations}}
-      {{with $annotation := (index $service.metadata.annotations $ANNOTATION)}}
-        {{range jsonArray $annotation}}
-          {{if .stream}}
-            {{range .stream}}
+  {{- range $serviceJson := getvs $servicePath}}
+    {{- $service := json $serviceJson}}
+    {{- if $service.metadata.annotations}}
+      {{- with $annotation := (index $service.metadata.annotations $ANNOTATION)}}
+        {{- range jsonArray $annotation}}
+          {{- if .stream}}
+            {{- range .stream}}
               #{{$service.metadata.name}}
               server {
                 listen {{.listen}};
@@ -491,10 +491,10 @@ stream{
                 proxy_connect_timeout 1s;
                 proxy_timeout 3s;
               }
-            {{end}}
-          {{end}}
-        {{end}}
-      {{end}}
-    {{end}}
-  {{end}}
+            {{- end}}
+          {{- end}}
+        {{- end}}
+      {{- end}}
+    {{- end}}
+  {{- end}}
 }
