@@ -144,9 +144,6 @@ RUN apt-get install -y logrotate cron
 COPY logrotate.conf /etc/logrotate.d/nginx.conf
 COPY crontab /
 
-# Nginx Beautifier
-RUN npm install -G nginxbeautifier
-
 #Config
 COPY nginx.conf /etc/nginx/
 COPY etc/confd /etc/confd
