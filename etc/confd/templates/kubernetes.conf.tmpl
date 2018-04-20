@@ -221,7 +221,7 @@ http {
                     {{- $port := or .port $defaultPort.port}}
                     #{{$service.metadata.name}} {{$annotation}}
 
-                    {{- if (getenv "HTTPS_ONLY")}}
+                    {{- if or .saml_idp_url (getenv "HTTPS_ONLY")}}
                       #redirect to https
                       server {
                         listen 80;
@@ -234,6 +234,11 @@ http {
                       server {
                         listen 443;
                         server_name {{.server}};
+                        {{- if .saml_idp_url}}
+                          #Enable SAML
+                          set $saml_idp_url {{.saml_idp_url}};
+                          include saml.conf;
+                        {{- end}}
                     {{- else}}
                       server {
                         listen 80;
@@ -336,6 +341,7 @@ http {
       listen 443 default_server http2 deferred ssl;
       {{- if (getenv "SAML_IDP_URL")}}
         #Enable SAML
+        set $saml_idp_url {{getenv "SAML_IDP_URL"}};
         include saml.conf;
       {{- end}}
       #PROFILE_LOCATION must point to something like this

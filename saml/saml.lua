@@ -4,7 +4,6 @@ local inspect = require("inspect")
 local ngx_var = ngx.var
 local saml = {}
 
-local saml_idp_url = os.getenv("SAML_IDP_URL")
 local secret = os.getenv("SESSION_SECRET") or "secret123"
 local profileLocation = os.getenv("PROFILE_LOCATION")
 local logoutLocation = os.getenv("LOGOUT_LOCATION")
@@ -16,7 +15,7 @@ function saml.checkAccess()
     -- no session, redirect to idp
     if not session.data.nameID then
         local relay_state = ngx_var.scheme.."://"..ngx.req.get_headers().host..ngx_var.request_uri
-        local redirect_url = saml_idp_url.."?RelayState="..relay_state
+        local redirect_url = ngx_var.saml_idp_url.."?RelayState="..relay_state
         -- ngx.log(ngx.ERR, "redirect to idp:"..redirect_url)
         return ngx.redirect(redirect_url)
     end
