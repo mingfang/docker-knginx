@@ -71,6 +71,9 @@ http {
   open_file_cache_min_uses 2;
   open_file_cache_errors   on;
 
+  proxy_cache_path  /var/cache/nginx levels=1:2 keys_zone=DEFAULT:10m max_size=4g use_temp_path=off;
+  add_header X-Cache-Status $upstream_cache_status;
+
   proxy_redirect          off;
   proxy_set_header        Host            $host;
   proxy_set_header        X-Forwarded-Proto $scheme;
