@@ -432,16 +432,6 @@ http {
     return 200;
   }
 
-  #missing favicon
-  location @missing_favicon {
-    access_log off;
-    return 204;
-  }
-  location /favicon.ico {
-    access_log off;
-    try_files $uri @missing_favicon;
-  }
-
   {{- range $serviceJson := getvs $servicePath}}
     {{- $service := json $serviceJson}}
     {{- if $service.metadata.annotations}}
